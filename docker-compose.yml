@@ -1,0 +1,58 @@
+version: '3.8'
+
+networks:
+  ghost_network:
+    driver: bridge
+
+services:
+  # Caddy web server
+  caddy:
+    image: caddy:2-alpine
+    container_name: caddy
+    restart: unless-stopped
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./static:/var/www/static:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - ghost_network
+    depends_on:
+      - mysql
+
+  # Shared MySQL database for all Ghost instances
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - ghost_network
+    command: --default-authentication-plugin=mysql_native_password
+
+  # Redis cache (optional, for performance)
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: unless-stopped
+    networks:
+      - ghost_network
+    volumes:
+      - redis_data:/data
+
+volumes:
+  caddy_data:
+  caddy_config:
+  mysql_data:
+  redis_data:
+
+# Include all site-specific compose files
+# Each file should be named after the site's hostname
+x-include:
+  - path: ./sites/*//*.yml

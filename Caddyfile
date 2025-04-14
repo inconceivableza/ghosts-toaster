@@ -1,0 +1,45 @@
+{
+    # Global Caddy options
+    email {$CADDY_EMAIL}
+    
+    # Enable automatic HTTPS
+    auto_https enable_redirects
+}
+
+# Snippet for common Ghost admin configuration
+(ghost_admin) {
+    # Reverse proxy for Ghost admin
+    reverse_proxy ghost_{args.0}:2368
+}
+
+# Snippet for static site configuration
+(static_site) {
+    root * /var/www/static/{args.0}
+    file_server
+    encode gzip
+}
+
+# For each site, configure base domain, www subdomain, and ghost admin subdomain
+# The configuration is automatically generated based on the directory structure
+
+{$SITES|*} {
+    @static {
+        not path /ghost*
+    }
+    
+    handle @static {
+        import static_site {$SITE_NAME}
+    }
+    
+    handle /ghost* {
+        import ghost_admin {$SITE_NAME}
+    }
+}
+
+www.{$SITES|*} {
+    redir https://{$SITE_NAME}{uri} permanent
+}
+
+ghost.{$SITES|*} {
+    import ghost_admin {$SITE_NAME}
+}
