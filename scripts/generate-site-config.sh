@@ -1,8 +1,9 @@
 #!/bin/bash
-# Script to generate site-specific Docker Compose files from .env files
+# Script to generate site-specific Docker Compose files from site.env files
 
 SITES_DIR="./sites"
 TEMPLATE_FILE="./site-template.yml"
+GLOBAL_ENV_FILE="./ghosts-toaster.env"
 
 # Check if template file exists
 if [ ! -f "$TEMPLATE_FILE" ]; then
@@ -10,14 +11,21 @@ if [ ! -f "$TEMPLATE_FILE" ]; then
     exit 1
 fi
 
+# Check if global environment file exists, create from example if needed
+if [ ! -f "$GLOBAL_ENV_FILE" ] && [ -f "$GLOBAL_ENV_FILE.example" ]; then
+    echo "Global environment file not found, creating from example..."
+    cp "$GLOBAL_ENV_FILE.example" "$GLOBAL_ENV_FILE"
+    echo "Created $GLOBAL_ENV_FILE from example"
+fi
+
 # Function to generate site-specific Docker Compose file
 generate_site_config() {
     local site_dir=$1
     local site_domain=$(basename "$site_dir")
-    local env_file="$site_dir/.env"
+    local env_file="$site_dir/site.env"
     local output_file="$site_dir/$site_domain.yml"
     
-    # Check if .env file exists
+    # Check if site.env file exists
     if [ ! -f "$env_file" ]; then
         echo "Warning: Environment file $env_file not found, skipping..."
         return
@@ -25,7 +33,7 @@ generate_site_config() {
     
     echo "Generating config for $site_domain..."
     
-    # Export variables from .env file to make them available for envsubst
+    # Export variables from site.env file to make them available for envsubst
     set -a
     source "$env_file"
     set +a
@@ -37,6 +45,11 @@ generate_site_config() {
     
     # Create database if it doesn't exist
     if [ -n "$DB_NAME" ] && [ -n "$DB_USER" ] && [ -n "$DB_PASSWORD" ]; then
+        # Load global environment variables to get MySQL root password
+        if [ -f "$GLOBAL_ENV_FILE" ]; then
+            source "$GLOBAL_ENV_FILE"
+        fi
+        
         echo "Ensuring database $DB_NAME exists with user $DB_USER..."
         # This command should be run when the MySQL container is already running
         docker exec mysql mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -e "
@@ -48,20 +61,12 @@ generate_site_config() {
     fi
 }
 
-# Generate a template file if it doesn't exist
-if [ ! -f "$TEMPLATE_FILE" ]; then
-    cat > "$TEMPLATE_FILE" << EOL
-$(cat ./site-template.yml)
-EOL
-    echo "Created template file: $TEMPLATE_FILE"
-fi
-
 # Process all site directories
 if [ -d "$SITES_DIR" ]; then
     echo "Processing sites in $SITES_DIR..."
     
-    # Find all .env files in subdirectories of SITES_DIR
-    find "$SITES_DIR" -type f -name ".env" | while read env_file; do
+    # Find all site.env files in subdirectories of SITES_DIR
+    find "$SITES_DIR" -type f -name "site.env" | while read env_file; do
         site_dir=$(dirname "$env_file")
         generate_site_config "$site_dir"
     done
@@ -77,7 +82,7 @@ echo "Generating Caddy environment variables..."
 SITES_LIST=""
 SITES_NAMES=""
 
-find "$SITES_DIR" -type f -name ".env" | while read env_file; do
+find "$SITES_DIR" -type f -name "site.env" | while read env_file; do
     source "$env_file"
     if [ -n "$SITE_DOMAIN" ]; then
         if [ -z "$SITES_LIST" ]; then
@@ -90,13 +95,13 @@ find "$SITES_DIR" -type f -name ".env" | while read env_file; do
     fi
 done
 
-# Update global .env file with site list
+# Update global environment file with site list
 if [ -n "$SITES_LIST" ]; then
-    grep -v "^SITES=" ./.env > ./.env.tmp || touch ./.env.tmp
-    echo "SITES=$SITES_LIST" >> ./.env.tmp
-    echo "SITE_NAMES=$SITES_NAMES" >> ./.env.tmp
-    mv ./.env.tmp ./.env
-    echo "Updated .env with SITES=$SITES_LIST"
+    grep -v "^SITES=" "$GLOBAL_ENV_FILE" > "$GLOBAL_ENV_FILE.tmp" || touch "$GLOBAL_ENV_FILE.tmp"
+    echo "SITES=$SITES_LIST" >> "$GLOBAL_ENV_FILE.tmp"
+    echo "SITE_NAMES=$SITES_NAMES" >> "$GLOBAL_ENV_FILE.tmp"
+    mv "$GLOBAL_ENV_FILE.tmp" "$GLOBAL_ENV_FILE"
+    echo "Updated $GLOBAL_ENV_FILE with SITES=$SITES_LIST"
 fi
 
 echo "Configuration generation complete."

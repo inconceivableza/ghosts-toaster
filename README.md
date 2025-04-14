@@ -1,26 +1,36 @@
-# Multi-Ghost Hosting Platform: Usage Guide
+# Ghosts-Toaster: Usage Guide
 
 This guide will walk you through setting up and managing multiple Ghost websites on a single host using Docker Compose and Caddy.
 
 ## Initial Setup
 
-1. **Clone the repository or create the project structure as shown**
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/yourusername/ghosts-toaster.git
+   cd ghosts-toaster
+   ```
 
-2. **Run the setup script**:
+2. **Create environment files from examples**:
+   ```bash
+   cp ghosts-toaster.env.example ghosts-toaster.env
+   ```
+   
+   Edit the `ghosts-toaster.env` file to set your desired global configuration.
+
+3. **Run the setup script**:
    ```bash
    chmod +x setup.sh
    ./setup.sh
    ```
    
    This will:
-   - Create the necessary directories
-   - Copy template files
-   - Set up an example site (mysite.social)
+   - Create the necessary directories if they don't exist
+   - Create an example site configuration if it doesn't exist
    - Generate site configurations
    - Start the Docker containers
    - Generate static sites
 
-3. **Access your first site**:
+4. **Access your first site**:
    - Ghost admin: https://ghost.mysite.social/ghost/
    - Public site: https://mysite.social
 
@@ -31,12 +41,12 @@ This guide will walk you through setting up and managing multiple Ghost websites
    mkdir -p sites/newsite.com
    ```
 
-2. **Create a .env file in that directory**:
+2. **Create a site.env file in that directory**:
    ```bash
-   cp sites/mysite.social/.env sites/newsite.com/.env
+   cp sites/mysite.social/site.env.example sites/newsite.com/site.env
    ```
 
-3. **Edit the .env file with the new site's details**:
+3. **Edit the site.env file with the new site's details**:
    ```bash
    # Site information
    SITE_NAME=newsite
@@ -79,7 +89,11 @@ This guide will walk you through setting up and managing multiple Ghost websites
 To update Ghost for all sites:
 
 1. Edit the `docker-compose.yml` file to update the Ghost image version
-2. Run:
+2. Regenerate site configurations:
+   ```bash
+   ./scripts/generate-site-config.sh
+   ```
+3. Restart all containers:
    ```bash
    docker compose pull
    docker compose up -d
@@ -109,10 +123,10 @@ To back up all Ghost content and databases:
 mkdir -p backups/$(date +%Y-%m-%d)
 
 # Back up MySQL data
-docker exec mysql mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" --all-databases > backups/$(date +%Y-%m-%d)/all-databases.sql
+docker exec mysql mysqldump -uroot -p"$(grep MYSQL_ROOT_PASSWORD ghosts-toaster.env | cut -d= -f2)" --all-databases > backups/$(date +%Y-%m-%d)/all-databases.sql
 
 # Back up Ghost content volumes
-docker run --rm -v multi-ghost-server_ghost_content_mysite:/source -v $(pwd)/backups/$(date +%Y-%m-%d)/ghost_content_mysite:/backup alpine tar -czf /backup/content.tar.gz -C /source .
+docker run --rm -v ghosts-toaster_ghost_content_mysite:/source -v $(pwd)/backups/$(date +%Y-%m-%d)/ghost_content_mysite:/backup alpine tar -czf /backup/content.tar.gz -C /source .
 ```
 
 You can create a script for this and set it up as a cron job for regular backups.
@@ -154,7 +168,7 @@ Consider setting up a monitoring solution like Prometheus and Grafana for more c
    docker compose logs mysql
    ```
 
-2. Verify database credentials in the site's .env file
+2. Verify database credentials in the site's site.env file
 
 3. Connect to MySQL to check databases and users:
    ```bash
@@ -172,7 +186,7 @@ Consider setting up a monitoring solution like Prometheus and Grafana for more c
 
 To use custom themes:
 
-1. Add a volume mount in the site's .yml file:
+1. Add a volume mount in the site-template.yml file:
    ```yaml
    volumes:
      - ghost_content_${SITE_NAME}:/var/lib/ghost/content
@@ -180,6 +194,8 @@ To use custom themes:
    ```
 
 2. Place your custom theme in the `sites/mysite.social/themes` directory
+
+3. Run `./scripts/generate-site-config.sh` to regenerate configurations
 
 ### Custom Caddy Configuration
 
@@ -202,7 +218,7 @@ For better performance:
 
 For proper email delivery:
 
-1. Set up proper mail configuration in each site's .env file
+1. Set up proper mail configuration in each site's site.env file
 2. Consider using a dedicated mail service like Mailgun, SendGrid, or Amazon SES
 
 ### Content API

@@ -3,6 +3,13 @@
 
 SITES_DIR="./sites"
 STATIC_DIR="./static"
+GLOBAL_ENV_FILE="./ghosts-toaster.env"
+
+# Load global environment variables
+if [ -f "$GLOBAL_ENV_FILE" ]; then
+    source "$GLOBAL_ENV_FILE"
+fi
+
 GSSG_IMAGE="docker.io/adryd325/docker-ghost-static-site-generator:${GSSG_VERSION:-latest}"
 
 # Make sure the static directory exists
@@ -11,9 +18,9 @@ mkdir -p "$STATIC_DIR"
 # Function to generate static site for a Ghost instance
 generate_static_site() {
     local site_dir=$1
-    local env_file="$site_dir/.env"
+    local env_file="$site_dir/site.env"
     
-    # Check if .env file exists
+    # Check if site.env file exists
     if [ ! -f "$env_file" ]; then
         echo "Warning: Environment file $env_file not found, skipping..."
         return
@@ -36,7 +43,7 @@ generate_static_site() {
     # Run ghost-static-site-generator in a Docker container
     # We connect to the Ghost container directly using the container name
     docker run --rm \
-        --network="multi-ghost-server_ghost_network" \
+        --network="ghosts-toaster_ghost_network" \
         -v "$output_dir:/output" \
         "$GSSG_IMAGE" \
         --url "http://ghost_${site_name}:2368" \
@@ -49,8 +56,8 @@ generate_static_site() {
 if [ -d "$SITES_DIR" ]; then
     echo "Processing sites in $SITES_DIR..."
     
-    # Find all .env files in subdirectories of SITES_DIR
-    find "$SITES_DIR" -type f -name ".env" | while read env_file; do
+    # Find all site.env files in subdirectories of SITES_DIR
+    find "$SITES_DIR" -type f -name "site.env" | while read env_file; do
         site_dir=$(dirname "$env_file")
         generate_static_site "$site_dir"
     done

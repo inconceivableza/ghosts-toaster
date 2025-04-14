@@ -1,5 +1,7 @@
 version: '3.8'
 
+name: ghosts-toaster
+
 networks:
   ghost_network:
     driver: bridge
@@ -22,14 +24,16 @@ services:
       - ghost_network
     depends_on:
       - mysql
+    env_file:
+      - ./ghosts-toaster.env
 
   # Shared MySQL database for all Ghost instances
   mysql:
     image: mysql:8.0
     container_name: mysql
     restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    env_file:
+      - ./ghosts-toaster.env
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
@@ -55,4 +59,4 @@ volumes:
 # Include all site-specific compose files
 # Each file should be named after the site's hostname
 x-include:
-  - path: ./sites/*//*.yml
+  - path: ./sites/*/*.yml
