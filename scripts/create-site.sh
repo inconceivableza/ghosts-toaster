@@ -15,6 +15,15 @@ SITE_DIR="$SITES_DIR/$SITE_DOMAIN"
 STATIC_DIR="./static/$SITE_DOMAIN"
 GLOBAL_ENV_FILE="./ghosts-toaster.env"
 
+# Load global environment variables to get prefixes
+if [ -f "$GLOBAL_ENV_FILE" ]; then
+    source "$GLOBAL_ENV_FILE"
+fi
+
+# Set default prefixes if not defined
+GHOST_PREFIX=${GHOST_PREFIX:-ghost}
+STATIC_PREFIX=${STATIC_PREFIX:-www}
+
 # Make sure the sites directory exists
 mkdir -p "$SITES_DIR"
 
@@ -95,7 +104,7 @@ fi
 echo "===== Setting up webhook for automatic static site generation ====="
 echo "After your Ghost site is running, set up the webhook with these steps:"
 echo ""
-echo "1. Access your Ghost admin panel at https://ghost.$SITE_DOMAIN/ghost/"
+echo "1. Access your Ghost admin panel at https://$GHOST_PREFIX.$SITE_DOMAIN/ghost/"
 echo "2. Go to Settings > Integrations"
 echo "3. Click 'Add custom integration'"
 echo "4. Name it 'Static Site Generator'"
@@ -122,3 +131,9 @@ echo "   git branch -M main"
 echo "   git push -u origin main"
 echo ""
 echo "After this setup, all static site updates will be automatically committed and pushed to GitHub."
+echo ""
+echo "===== Access Your New Site ====="
+echo "Once setup is complete, your site will be available at:"
+echo "- Ghost Admin: https://$GHOST_PREFIX.$SITE_DOMAIN/ghost/"
+echo "- Static Site: https://$STATIC_PREFIX.$SITE_DOMAIN"
+echo "- Main Domain: https://$SITE_DOMAIN"

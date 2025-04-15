@@ -36,10 +36,11 @@
     }
 }
 
-www.{$SITES|*} {
-    redir https://{$SITE_NAME}{uri} permanent
+{$STATIC_PREFIX}.{$SITES|*} {
+    import static_site {$SITE_NAME}
 }
 
-ghost.{$SITES|*} {
+{$GHOST_PREFIX}.{$SITES|*} {
     import ghost_admin {$SITE_NAME}
 }
+

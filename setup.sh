@@ -19,6 +19,11 @@ if [ ! -f "ghosts-toaster.env" ] && [ -f "ghosts-toaster.env.example" ]; then
     echo "Generated secure webhook secret"
 fi
 
+# Load global environment variables to get prefixes
+source ghosts-toaster.env
+GHOST_PREFIX=${GHOST_PREFIX:-ghost}
+STATIC_PREFIX=${STATIC_PREFIX:-www}
+
 echo "Generating site configurations..."
 ./scripts/generate-site-config.sh
 

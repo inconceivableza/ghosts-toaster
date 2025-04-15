@@ -18,6 +18,11 @@ if [ ! -f "$GLOBAL_ENV_FILE" ] && [ -f "$GLOBAL_ENV_FILE.example" ]; then
     echo "Created $GLOBAL_ENV_FILE from example"
 fi
 
+# Load global environment to get prefixes
+source "$GLOBAL_ENV_FILE"
+GHOST_PREFIX=${GHOST_PREFIX:-ghost}
+STATIC_PREFIX=${STATIC_PREFIX:-www}
+
 # Function to generate site-specific Docker Compose file
 generate_site_config() {
     local site_dir=$1
@@ -91,13 +96,29 @@ find "$SITES_DIR" -type f -name "site.env" | while read env_file; do
     fi
 done
 
-# Update global environment file with site list
+# Update global environment file with site list and preserve prefix settings
 if [ -n "$SITES_LIST" ]; then
     grep -v "^SITES=" "$GLOBAL_ENV_FILE" > "$GLOBAL_ENV_FILE.tmp" || touch "$GLOBAL_ENV_FILE.tmp"
     grep -v "^SITE_NAMES=" "$GLOBAL_ENV_FILE.tmp" > "$GLOBAL_ENV_FILE.tmp2" || touch "$GLOBAL_ENV_FILE.tmp2"
     mv "$GLOBAL_ENV_FILE.tmp2" "$GLOBAL_ENV_FILE.tmp"
+    
+    # Add the site lists
     echo "SITES=$SITES_LIST" >> "$GLOBAL_ENV_FILE.tmp"
     echo "SITE_NAMES=$SITES_NAMES" >> "$GLOBAL_ENV_FILE.tmp"
+    
+    # Preserve prefix settings if they exist
+    if [ -n "$GHOST_PREFIX" ]; then
+        grep -v "^GHOST_PREFIX=" "$GLOBAL_ENV_FILE.tmp" > "$GLOBAL_ENV_FILE.tmp2" || cp "$GLOBAL_ENV_FILE.tmp" "$GLOBAL_ENV_FILE.tmp2"
+        echo "GHOST_PREFIX=$GHOST_PREFIX" >> "$GLOBAL_ENV_FILE.tmp2"
+        mv "$GLOBAL_ENV_FILE.tmp2" "$GLOBAL_ENV_FILE.tmp"
+    fi
+    
+    if [ -n "$STATIC_PREFIX" ]; then
+        grep -v "^STATIC_PREFIX=" "$GLOBAL_ENV_FILE.tmp" > "$GLOBAL_ENV_FILE.tmp2" || cp "$GLOBAL_ENV_FILE.tmp" "$GLOBAL_ENV_FILE.tmp2"
+        echo "STATIC_PREFIX=$STATIC_PREFIX" >> "$GLOBAL_ENV_FILE.tmp2"
+        mv "$GLOBAL_ENV_FILE.tmp2" "$GLOBAL_ENV_FILE.tmp"
+    fi
+    
     mv "$GLOBAL_ENV_FILE.tmp" "$GLOBAL_ENV_FILE"
     echo "Updated $GLOBAL_ENV_FILE with SITES=$SITES_LIST"
 fi
