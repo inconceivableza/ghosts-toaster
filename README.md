@@ -88,7 +88,7 @@ This guide will walk you through setting up and managing multiple Ghost websites
 
 To update Ghost for all sites:
 
-1. Edit the `docker-compose.yml` file to update the Ghost image version
+1. Edit the `site-template.yml` file to update the Ghost image version
 2. Regenerate site configurations:
    ```bash
    ./scripts/generate-site-config.sh
