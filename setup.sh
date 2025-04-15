@@ -9,6 +9,7 @@ mkdir -p static
 # Make scripts executable
 chmod +x scripts/generate-site-config.sh
 chmod +x scripts/generate-static-sites.sh
+chmod +x scripts/create-site.sh
 
 # Create global environment file from example if it doesn't exist
 if [ ! -f "ghosts-toaster.env" ] && [ -f "ghosts-toaster.env.example" ]; then
@@ -20,11 +21,8 @@ fi
 # Create example site if it doesn't exist
 if [ ! -d "sites/mysite.social" ]; then
     echo "Setting up example site..."
-    mkdir -p sites/mysite.social
-    if [ -f "sites/mysite.social/site.env.example" ]; then
-        cp sites/mysite.social/site.env.example sites/mysite.social/site.env
-        echo "Created site.env for example site"
-    fi
+    ./scripts/create-site.sh mysite mysite.social
+    echo "Created example site"
 fi
 
 echo "Generating site configurations..."
@@ -44,8 +42,7 @@ echo "You can access your Ghost admin at: https://ghost.mysite.social/ghost/"
 echo "The public site is available at: https://mysite.social"
 echo ""
 echo "To add new sites:"
-echo "1. Create a new directory under 'sites/' with the domain name"
-echo "2. Create a site.env file in that directory from site.env.example"
-echo "3. Run ./scripts/generate-site-config.sh to generate the site configuration"
-echo "4. Restart the system with 'docker compose up -d'"
-echo "5. Run ./scripts/generate-static-sites.sh to generate the static site"
+echo "1. Run: ./scripts/create-site.sh <site_name> <domain>"
+echo "   Example: ./scripts/create-site.sh myblog myblog.com"
+echo "2. Restart the system with 'docker compose up -d'"
+echo "3. Run ./scripts/generate-static-sites.sh to generate the static site"

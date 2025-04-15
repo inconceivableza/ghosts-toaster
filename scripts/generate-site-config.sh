@@ -33,8 +33,9 @@ generate_site_config() {
     
     echo "Generating config for $site_domain..."
     
-    # Export variables from site.env file to make them available for envsubst
+    # Export variables from site.env file and global env file to make them available for envsubst
     set -a
+    source "$GLOBAL_ENV_FILE"
     source "$env_file"
     set +a
     
@@ -45,11 +46,6 @@ generate_site_config() {
     
     # Create database if it doesn't exist
     if [ -n "$DB_NAME" ] && [ -n "$DB_USER" ] && [ -n "$DB_PASSWORD" ]; then
-        # Load global environment variables to get MySQL root password
-        if [ -f "$GLOBAL_ENV_FILE" ]; then
-            source "$GLOBAL_ENV_FILE"
-        fi
-        
         echo "Ensuring database $DB_NAME exists with user $DB_USER..."
         # This command should be run when the MySQL container is already running
         docker exec mysql mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -e "
@@ -98,6 +94,8 @@ done
 # Update global environment file with site list
 if [ -n "$SITES_LIST" ]; then
     grep -v "^SITES=" "$GLOBAL_ENV_FILE" > "$GLOBAL_ENV_FILE.tmp" || touch "$GLOBAL_ENV_FILE.tmp"
+    grep -v "^SITE_NAMES=" "$GLOBAL_ENV_FILE.tmp" > "$GLOBAL_ENV_FILE.tmp2" || touch "$GLOBAL_ENV_FILE.tmp2"
+    mv "$GLOBAL_ENV_FILE.tmp2" "$GLOBAL_ENV_FILE.tmp"
     echo "SITES=$SITES_LIST" >> "$GLOBAL_ENV_FILE.tmp"
     echo "SITE_NAMES=$SITES_NAMES" >> "$GLOBAL_ENV_FILE.tmp"
     mv "$GLOBAL_ENV_FILE.tmp" "$GLOBAL_ENV_FILE"

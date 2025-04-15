@@ -15,9 +15,9 @@ services:
       url: https://${SITE_DOMAIN}
       NODE_ENV: production
       
-      # Optional mail configuration
-      mail__transport: ${MAIL_TRANSPORT:-SMTP}
-      mail__options__service: ${MAIL_SERVICE:-Mailgun}
+      # Mail configuration from global environment
+      mail__transport: ${MAIL_TRANSPORT}
+      mail__options__service: ${MAIL_SERVICE}
       mail__options__auth__user: ${MAIL_USER}
       mail__options__auth__pass: ${MAIL_PASSWORD}
     volumes:
@@ -26,6 +26,8 @@ services:
       - ghost_network
     depends_on:
       - mysql
+    env_file:
+      - ./ghosts-toaster.env
 
 volumes:
   ghost_content_${SITE_NAME}:
