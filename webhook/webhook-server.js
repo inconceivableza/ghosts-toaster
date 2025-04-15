@@ -9,6 +9,11 @@ const app = express();
 const port = process.env.PORT || 9000;
 const webhookSecret = process.env.WEBHOOK_SECRET || 'changeme';
 
+// Track running static site generations
+const runningGenerations = new Map();
+// Track pending generation requests (to avoid duplicate runs)
+const pendingGenerations = new Set();
+
 // Parse JSON requests
 app.use(bodyParser.json());
 
@@ -22,6 +27,80 @@ app.use((req, res, next) => {
 app.get('/health', (req, res) => {
   res.status(200).send('Webhook receiver is healthy');
 });
+
+// Function to generate static site
+function generateStaticSite(siteName, siteDomain) {
+  return new Promise((resolve, reject) => {
+    if (runningGenerations.has(siteName)) {
+      console.log(`Static site generation already running for ${siteName}, will skip this request`);
+      return resolve(false);
+    }
+    
+    // Mark this site as being generated
+    runningGenerations.set(siteName, Date.now());
+    // Remove from pending
+    pendingGenerations.delete(siteName);
+    
+    const outputDir = `/output/${siteDomain}`;
+    
+    // Create output directory if it doesn't exist
+    if (!fs.existsSync(outputDir)) {
+      try {
+        fs.mkdirSync(outputDir, { recursive: true });
+      } catch (err) {
+        console.error(`Error creating directory ${outputDir}:`, err);
+        runningGenerations.delete(siteName);
+        return reject(new Error(`Error creating output directory: ${err.message}`));
+      }
+    }
+    
+    const command = `docker exec static-generator gssg --url http://ghost_${siteName}:2368 --dest ${outputDir}`;
+    
+    console.log(`Executing command: ${command}`);
+    
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error generating static site for ${siteName}:`, error);
+        console.error(stderr);
+        runningGenerations.delete(siteName);
+        return reject(new Error(`Error generating static site: ${error.message}`));
+      }
+      
+      console.log(`Static site for ${siteName} generated successfully`);
+      console.log(stdout);
+      
+      // Update git repository
+      const gitCommand = `cd /scripts && ./update-git-repository.sh ${siteDomain}`;
+      console.log(`Executing git update command: ${gitCommand}`);
+      
+      exec(gitCommand, (gitError, gitStdout, gitStderr) => {
+        if (gitError) {
+          console.error(`Error updating git repository for ${siteName}:`, gitError);
+          console.error(gitStderr);
+          // We don't reject here because the site was generated successfully
+        } else {
+          console.log(`Git repository for ${siteName} updated successfully`);
+          console.log(gitStdout);
+        }
+        
+        // Remove from running
+        runningGenerations.delete(siteName);
+        
+        // Check if there's a pending request for this site
+        if (pendingGenerations.has(siteName)) {
+          console.log(`Found pending generation request for ${siteName}, triggering now`);
+          pendingGenerations.delete(siteName);
+          // Start a new generation
+          generateStaticSite(siteName, siteDomain).catch(err => {
+            console.error(`Error in follow-up generation for ${siteName}:`, err);
+          });
+        }
+        
+        resolve(true);
+      });
+    });
+  });
+}
 
 // Webhook endpoint for Ghost
 app.post('/webhook/:siteName', (req, res) => {
@@ -42,15 +121,6 @@ app.post('/webhook/:siteName', (req, res) => {
   }
   
   console.log(`Received webhook for site: ${siteName}`);
-  
-  // Check if site exists
-  const sitesDir = '/app/sites';
-  try {
-    fs.accessSync(`/sites/${siteName}`, fs.constants.F_OK);
-  } catch (err) {
-    console.error(`Site ${siteName} not found`);
-    return res.status(404).send(`Site ${siteName} not found`);
-  }
   
   // Find the domain from site.env file
   let siteDomain = '';
@@ -85,36 +155,37 @@ app.post('/webhook/:siteName', (req, res) => {
     return res.status(404).send(`Domain for site ${siteName} not found`);
   }
   
-  // Execute the static site generation command
-  const outputDir = `/output/${siteDomain}`;
-  
-  // Create output directory if it doesn't exist
-  if (!fs.existsSync(outputDir)) {
-    try {
-      fs.mkdirSync(outputDir, { recursive: true });
-    } catch (err) {
-      console.error(`Error creating directory ${outputDir}:`, err);
-      return res.status(500).send('Error creating output directory');
-    }
+  // Check if generation is already running for this site
+  if (runningGenerations.has(siteName)) {
+    console.log(`Static site generation already running for ${siteName}, marking as pending`);
+    pendingGenerations.add(siteName);
+    return res.status(202).send('Static site generation already in progress, request queued');
   }
   
-  const command = `docker exec static-generator gssg --url http://ghost_${siteName}:2368 --dest ${outputDir}`;
+  // Check if we have a pending generation for this site
+  if (pendingGenerations.has(siteName)) {
+    console.log(`Static site generation already pending for ${siteName}, no action needed`);
+    return res.status(202).send('Static site generation already queued');
+  }
   
-  console.log(`Executing command: ${command}`);
+  // Start generating the static site
+  generateStaticSite(siteName, siteDomain)
+    .then(() => {
+      console.log(`Completed static site generation process for ${siteName}`);
+    })
+    .catch(err => {
+      console.error(`Error during static site generation for ${siteName}:`, err);
+    });
   
-  exec(command, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Error generating static site for ${siteName}:`, error);
-      console.error(stderr);
-      return res.status(500).send(`Error generating static site: ${error.message}`);
-    }
-    
-    console.log(`Static site for ${siteName} generated successfully`);
-    console.log(stdout);
-    
-    res.status(200).send('Static site generation triggered');
-  });
+  // Immediately respond to the webhook
+  res.status(202).send('Static site generation triggered');
 });
+
+// Start the server
+app.listen(port, () => {
+  console.log(`Webhook receiver listening on port ${port}`);
+});
+
 
 // Start the server
 app.listen(port, () => {
