@@ -184,3 +184,7 @@ MAIL_PASSWORD=your_mail_password
 3. Keep all containers updated
 4. Regularly back up your data
 5. Use a firewall to restrict access to necessary ports only
+
+## License
+
+The project is licensed under the [MIT license](./LICENSE)
