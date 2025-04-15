@@ -42,6 +42,12 @@ generate_static_site() {
     docker exec static-generator gssg --url "http://ghost_${site_name}:2368" --dest "/output/$site_domain"
     
     echo "Static site for $site_domain generated in $output_dir"
+    
+    # Update Git repository for the static site
+    if [ -d "$output_dir" ]; then
+        echo "Updating Git repository for $site_domain..."
+        ./scripts/update-git-repository.sh "$site_domain"
+    fi
 }
 
 # Process all site directories

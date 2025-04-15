@@ -12,6 +12,7 @@ SITE_NAME=$1
 SITE_DOMAIN=$2
 SITES_DIR="./sites"
 SITE_DIR="$SITES_DIR/$SITE_DOMAIN"
+STATIC_DIR="./static/$SITE_DOMAIN"
 GLOBAL_ENV_FILE="./ghosts-toaster.env"
 
 # Make sure the sites directory exists
@@ -80,7 +81,7 @@ echo ""
 echo "To apply changes and start the site:"
 echo "1. Run: docker compose up -d"
 echo "2. Wait for the service to initialize"
-echo "3. Run: ./scripts/generate-static-sites.sh"
+echo "3. Your static site will be generated automatically"
 echo ""
 
 # Get the webhook secret from the global environment file
@@ -108,3 +109,16 @@ echo "   - Secret: '$WEBHOOK_SECRET'"
 echo ""
 echo "This webhook will automatically trigger the static site generation"
 echo "whenever content is published, updated, or deleted on your Ghost site."
+echo ""
+echo "===== Setting up Git repository for the static site ====="
+echo "A Git repository will be automatically initialized in $STATIC_DIR"
+echo "After the static site is generated, set up the remote repository with these steps:"
+echo ""
+echo "1. Create a new repository on GitHub named '$SITE_DOMAIN'"
+echo "2. Run the following commands to configure the remote:"
+echo "   cd $STATIC_DIR"
+echo "   git remote add origin https://github.com/yourusername/$SITE_DOMAIN.git"
+echo "   git branch -M main"
+echo "   git push -u origin main"
+echo ""
+echo "After this setup, all static site updates will be automatically committed and pushed to GitHub."

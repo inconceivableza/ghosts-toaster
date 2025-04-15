@@ -52,17 +52,29 @@ services:
     volumes:
       - redis_data:/data
       
-  # Static site generator service
+  # Static site generator service with Git support
   static-generator:
-    image: docker.io/adryd325/docker-ghost-static-site-generator:${GSSG_VERSION:-latest}
+    image: alpine:latest
     container_name: static-generator
     restart: unless-stopped
     volumes:
       - ./static:/output
+      - ./scripts:/scripts
     networks:
       - ghost_network
       - webhook_network
-    command: sh -c "echo 'Static site generator container started'; tail -f /dev/null"
+    command: >
+      sh -c "
+        apk add --no-cache git nodejs npm ca-certificates && 
+        npm install -g ghost-static-site-generator && 
+        echo 'Static site generator container started' && 
+        # Set git configuration
+        git config --global user.email 'ghost-static@ghosts-toaster.local' &&
+        git config --global user.name 'Ghost Static Generator' &&
+        git config --global init.defaultBranch main &&
+        # Keep container running
+        tail -f /dev/null
+      "
     
   # Webhook receiver for triggering static site generations
   webhook-receiver:

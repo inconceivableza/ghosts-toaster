@@ -41,7 +41,9 @@ Use the provided script:
 docker compose up -d
 ```
 
-After your site is running, follow the instructions provided by the script to set up the webhook for automatic static site generation.
+After your site is running, follow the instructions provided by the script to:
+1. Set up the webhook for automatic static site generation
+2. Configure the GitHub repository for the static site
 
 ## Automatic Static Site Generation
 
@@ -50,12 +52,26 @@ Ghosts-Toaster includes a webhook system that automatically rebuilds the static 
 1. Each site uses a webhook that triggers on the `site.changed` event
 2. The webhook notifies a webhook receiver container running internally in the Docker network
 3. The webhook receiver triggers the static site generator for the specific site
+4. Changes are automatically committed to Git and pushed to GitHub
 
-This means your static sites will be updated automatically without manual intervention whenever:
-- New content is published
-- Existing content is updated
-- Content is deleted
-- Site settings are changed
+The system handles concurrent updates intelligently:
+- If a site generation is already running when a new update arrives, the update is queued
+- If multiple updates arrive while a generation is running, they are combined into a single update
+- This ensures efficient processing without unnecessary duplicate builds
+
+## Git Integration
+
+Each static site is automatically managed in its own Git repository:
+
+1. A Git repository is initialized in the static site directory
+2. All changes are automatically committed with timestamped messages
+3. If a remote is configured, changes are automatically pushed
+
+To set up GitHub integration for your static site:
+
+1. Create a new repository on GitHub named after your domain
+2. Follow the instructions provided after site creation to configure the remote
+3. Consider setting up GitHub Pages or Netlify to host your static site directly from the repository
 
 ## Managing Your Sites
 
@@ -113,13 +129,17 @@ docker compose logs static-generator
 
 Verify the webhook is properly configured in Ghost admin panel (Settings > Integrations).
 
-### Database Connection Issues
+### Git Issues
+
+If commits or pushes are failing:
 
 ```bash
-docker compose logs mysql
-cat sites/mysite.social/site.env
-docker exec -it mysql mysql -uroot -p
+cd static/yourdomain.com
+git status
+git remote -v
 ```
+
+Ensure the remote is properly configured and you have the necessary permissions.
 
 ## Customizing Your Setup
 
