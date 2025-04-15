@@ -1,4 +1,17 @@
-# Ghosts-Toaster: Usage Guide
+# Ghosts-Toaster
+
+This project is designed to use [Ghost](https://ghost.org/) as a nice usable frontend for editing multiple static websites,
+which don't require the subscriber management and other dynamic features that Ghost provides,
+by hosting Ghost for multiple of these websites on a single machine,
+and then [publishing the generated content to static files](https://github.com/SimonMo88/ghost-static-site-generator/) that can be deployed elsewhere.
+
+Ghost itself only supports running a single site on a host, so Docker containers are used for the different Ghost sites.
+[Caddy](https://caddyserver.com/) is used as a front-end server that also generates SSL certificates for each domain.
+
+_Many ghosts need static hosts_
+_With reasonable performance_
+_Take those ghosts and make them toast_
+_To serve up to your audience_
 
 This guide will walk you through setting up and managing multiple Ghost websites on a single host using Docker Compose and Caddy.
 
@@ -6,7 +19,7 @@ This guide will walk you through setting up and managing multiple Ghost websites
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/yourusername/ghosts-toaster.git
+   git clone https://github.com/inconceivableza/ghosts-toaster.git
    cd ghosts-toaster
    ```
 
