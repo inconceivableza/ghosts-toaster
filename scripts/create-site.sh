@@ -81,3 +81,30 @@ echo "To apply changes and start the site:"
 echo "1. Run: docker compose up -d"
 echo "2. Wait for the service to initialize"
 echo "3. Run: ./scripts/generate-static-sites.sh"
+echo ""
+
+# Get the webhook secret from the global environment file
+WEBHOOK_SECRET=$(grep WEBHOOK_SECRET $GLOBAL_ENV_FILE | cut -d= -f2)
+if [ -z "$WEBHOOK_SECRET" ]; then
+    WEBHOOK_SECRET="changeme"
+    echo "WARNING: No webhook secret found in $GLOBAL_ENV_FILE! Using default value 'changeme'."
+    echo "Please update the WEBHOOK_SECRET in $GLOBAL_ENV_FILE for security."
+fi
+
+echo "===== Setting up webhook for automatic static site generation ====="
+echo "After your Ghost site is running, set up the webhook with these steps:"
+echo ""
+echo "1. Access your Ghost admin panel at https://ghost.$SITE_DOMAIN/ghost/"
+echo "2. Go to Settings > Integrations"
+echo "3. Click 'Add custom integration'"
+echo "4. Name it 'Static Site Generator'"
+echo "5. Click 'Create'"
+echo "6. In the integration details, scroll down to 'Webhooks'"
+echo "7. Add a webhook with the following details:"
+echo "   - Name: 'Site Changed'"
+echo "   - Event: 'site.changed'"
+echo "   - Target URL: 'http://webhook-receiver:9000/webhook/$SITE_NAME'"
+echo "   - Secret: '$WEBHOOK_SECRET'"
+echo ""
+echo "This webhook will automatically trigger the static site generation"
+echo "whenever content is published, updated, or deleted on your Ghost site."

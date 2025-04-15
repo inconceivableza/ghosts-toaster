@@ -15,7 +15,7 @@ This guide will walk you through setting up and managing multiple Ghost websites
    cp ghosts-toaster.env.example ghosts-toaster.env
    ```
    
-   Edit the `ghosts-toaster.env` file to set your global configuration and mail settings.
+   Edit the `ghosts-toaster.env` file to set your global configuration, mail settings, and webhook secret.
 
 3. **Run the setup script**:
    ```bash
@@ -39,8 +39,23 @@ Use the provided script:
 
 # Apply changes
 docker compose up -d
-./scripts/generate-static-sites.sh
 ```
+
+After your site is running, follow the instructions provided by the script to set up the webhook for automatic static site generation.
+
+## Automatic Static Site Generation
+
+Ghosts-Toaster includes a webhook system that automatically rebuilds the static site when content changes:
+
+1. Each site uses a webhook that triggers on the `site.changed` event
+2. The webhook notifies a webhook receiver container running internally in the Docker network
+3. The webhook receiver triggers the static site generator for the specific site
+
+This means your static sites will be updated automatically without manual intervention whenever:
+- New content is published
+- Existing content is updated
+- Content is deleted
+- Site settings are changed
 
 ## Managing Your Sites
 
@@ -52,16 +67,12 @@ Edit the `site-template.yml` file to update the Ghost image version, then run:
 docker compose up -d
 ```
 
-### Regenerating Static Sites
+### Manual Static Site Regeneration
+
+If needed, you can manually trigger static site generation:
 
 ```bash
 ./scripts/generate-static-sites.sh
-```
-
-To automate this, set up a cron job:
-```bash
-# Regenerate static sites every hour
-0 * * * * /path/to/your/project/scripts/generate-static-sites.sh
 ```
 
 ### Backing Up Your Sites
@@ -91,6 +102,16 @@ docker compose ps
 docker compose logs caddy
 docker compose logs ghost_mysite
 ```
+
+### Static Site Not Updating
+
+Check the webhook receiver and static generator logs:
+```bash
+docker compose logs webhook-receiver
+docker compose logs static-generator
+```
+
+Verify the webhook is properly configured in Ghost admin panel (Settings > Integrations).
 
 ### Database Connection Issues
 
@@ -126,7 +147,7 @@ MAIL_PASSWORD=your_mail_password
 ## Security Considerations
 
 1. Use strong passwords (automatically handled by the site creation script)
-2. Keep all containers updated
-3. Consider implementing fail2ban for added security
+2. Set a secure webhook secret in `ghosts-toaster.env`
+3. Keep all containers updated
 4. Regularly back up your data
 5. Use a firewall to restrict access to necessary ports only

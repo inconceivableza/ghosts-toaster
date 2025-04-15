@@ -5,6 +5,8 @@ name: ghosts-toaster
 networks:
   ghost_network:
     driver: bridge
+  webhook_network:
+    internal: true  # Only accessible by containers, not externally
 
 services:
   # Caddy web server
@@ -49,6 +51,38 @@ services:
       - ghost_network
     volumes:
       - redis_data:/data
+      
+  # Static site generator service
+  static-generator:
+    image: docker.io/adryd325/docker-ghost-static-site-generator:${GSSG_VERSION:-latest}
+    container_name: static-generator
+    restart: unless-stopped
+    volumes:
+      - ./static:/output
+    networks:
+      - ghost_network
+      - webhook_network
+    command: sh -c "echo 'Static site generator container started'; tail -f /dev/null"
+    
+  # Webhook receiver for triggering static site generations
+  webhook-receiver:
+    image: node:18-alpine
+    container_name: webhook-receiver
+    restart: unless-stopped
+    volumes:
+      - ./webhook:/app
+      - ./scripts:/scripts
+      - ./sites:/sites:ro
+    working_dir: /app
+    networks:
+      - ghost_network
+      - webhook_network
+    depends_on:
+      - static-generator
+    command: sh -c "npm install && node webhook-server.js"
+    environment:
+      - PORT=9000
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET:-changeme}
 
 volumes:
   caddy_data:

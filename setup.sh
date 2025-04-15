@@ -6,12 +6,18 @@ echo "Creating directories if they don't exist..."
 mkdir -p sites
 mkdir -p static
 mkdir -p backups
+mkdir -p webhook
 
 # Create global environment file from example if it doesn't exist
 if [ ! -f "ghosts-toaster.env" ] && [ -f "ghosts-toaster.env.example" ]; then
     echo "Creating global environment file from example..."
     cp ghosts-toaster.env.example ghosts-toaster.env
     echo "Created ghosts-toaster.env from example"
+    
+    # Generate a secure random webhook secret
+    WEBHOOK_SECRET=$(head -c 32 /dev/urandom | sha256sum | head -c 32)
+    sed -i "s/change_this_to_a_secure_random_string/$WEBHOOK_SECRET/" ghosts-toaster.env
+    echo "Generated secure webhook secret"
 fi
 
 # Create example site if it doesn't exist
@@ -41,4 +47,4 @@ echo "To add new sites:"
 echo "1. Run: ./scripts/create-site.sh <site_name> <domain>"
 echo "   Example: ./scripts/create-site.sh myblog myblog.com"
 echo "2. Restart the system with 'docker compose up -d'"
-echo "3. Run ./scripts/generate-static-sites.sh to generate the static site"
+echo "3. Follow the instructions to set up the webhook for automatic site updates"

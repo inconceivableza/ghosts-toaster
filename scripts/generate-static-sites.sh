@@ -10,8 +10,6 @@ if [ -f "$GLOBAL_ENV_FILE" ]; then
     source "$GLOBAL_ENV_FILE"
 fi
 
-GSSG_IMAGE="docker.io/adryd325/docker-ghost-static-site-generator:${GSSG_VERSION:-latest}"
-
 # Make sure the static directory exists
 mkdir -p "$STATIC_DIR"
 
@@ -40,14 +38,8 @@ generate_static_site() {
     # Create output directory if it doesn't exist
     mkdir -p "$output_dir"
     
-    # Run ghost-static-site-generator in a Docker container
-    # We connect to the Ghost container directly using the container name
-    docker run --rm \
-        --network="ghosts-toaster_ghost_network" \
-        -v "$output_dir:/output" \
-        "$GSSG_IMAGE" \
-        --url "http://ghost_${site_name}:2368" \
-        --dest "/output"
+    # Use docker exec to run the static site generator in the container
+    docker exec static-generator gssg --url "http://ghost_${site_name}:2368" --dest "/output/$site_domain"
     
     echo "Static site for $site_domain generated in $output_dir"
 }
