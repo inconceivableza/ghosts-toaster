@@ -66,15 +66,19 @@ To automate this, set up a cron job:
 
 ### Backing Up Your Sites
 
+Use the provided backup script:
+
 ```bash
-# Create backup directory
-mkdir -p backups/$(date +%Y-%m-%d)
+chmod +x scripts/backup-ghosts.sh
+./scripts/backup-ghosts.sh
+```
 
-# Back up MySQL data
-docker exec mysql mysqldump -uroot -p"$(grep MYSQL_ROOT_PASSWORD ghosts-toaster.env | cut -d= -f2)" --all-databases > backups/$(date +%Y-%m-%d)/all-databases.sql
+This will create backups of all MySQL databases and Ghost content volumes in a dated directory under `backups/`.
 
-# Back up Ghost content volumes
-docker run --rm -v ghosts-toaster_ghost_content_mysite:/source -v $(pwd)/backups/$(date +%Y-%m-%d)/ghost_content_mysite:/backup alpine tar -czf /backup/content.tar.gz -C /source .
+To automate backups, set up a cron job:
+```bash
+# Backup all sites daily at 2 AM
+0 2 * * * /path/to/your/project/scripts/backup-ghosts.sh
 ```
 
 ## Troubleshooting

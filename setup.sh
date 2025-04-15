@@ -5,11 +5,7 @@
 echo "Creating directories if they don't exist..."
 mkdir -p sites
 mkdir -p static
-
-# Make scripts executable
-chmod +x scripts/generate-site-config.sh
-chmod +x scripts/generate-static-sites.sh
-chmod +x scripts/create-site.sh
+mkdir -p backups
 
 # Create global environment file from example if it doesn't exist
 if [ ! -f "ghosts-toaster.env" ] && [ -f "ghosts-toaster.env.example" ]; then
