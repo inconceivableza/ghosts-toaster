@@ -6,7 +6,6 @@ echo "Creating directories if they don't exist..."
 mkdir -p sites
 mkdir -p static
 mkdir -p backups
-mkdir -p webhook
 
 # Create global environment file from example if it doesn't exist
 if [ ! -f "ghosts-toaster.env" ] && [ -f "ghosts-toaster.env.example" ]; then
@@ -20,13 +19,6 @@ if [ ! -f "ghosts-toaster.env" ] && [ -f "ghosts-toaster.env.example" ]; then
     echo "Generated secure webhook secret"
 fi
 
-# Create example site if it doesn't exist
-if [ ! -d "sites/mysite.social" ]; then
-    echo "Setting up example site..."
-    ./scripts/create-site.sh mysite mysite.social
-    echo "Created example site"
-fi
-
 echo "Generating site configurations..."
 ./scripts/generate-site-config.sh
 
@@ -36,12 +28,7 @@ docker compose up -d
 echo "Waiting for services to initialize (30 seconds)..."
 sleep 30
 
-echo "Generating static sites..."
-./scripts/generate-static-sites.sh
-
 echo "Setup complete! Your ghosts-toaster platform is now running."
-echo "You can access your Ghost admin at: https://ghost.mysite.social/ghost/"
-echo "The public site is available at: https://mysite.social"
 echo ""
 echo "To add new sites:"
 echo "1. Run: ./scripts/create-site.sh <site_name> <domain>"

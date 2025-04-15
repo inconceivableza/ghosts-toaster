@@ -35,11 +35,7 @@ This guide will walk you through setting up and managing multiple Ghost websites
    ./setup.sh
    ```
    
-   This will create an example site, start the Docker containers, and generate the static site.
-
-4. **Access your first site**:
-   - Ghost admin: https://ghost.mysite.social/ghost/
-   - Public site: https://mysite.social
+   This will start the Docker containers.but no sites as yet will be available until you create them.
 
 ## Adding a New Site
 
