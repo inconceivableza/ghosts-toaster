@@ -32,7 +32,6 @@ This guide will walk you through setting up and managing multiple Ghost websites
 
 3. **Run the setup script**:
    ```bash
-   chmod +x setup.sh
    ./setup.sh
    ```
    
@@ -109,7 +108,6 @@ If needed, you can manually trigger static site generation:
 Use the provided backup script:
 
 ```bash
-chmod +x scripts/backup-ghosts.sh
 ./scripts/backup-ghosts.sh
 ```
 
