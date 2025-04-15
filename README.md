@@ -95,7 +95,6 @@ To update Ghost for all sites:
    ```
 3. Restart all containers:
    ```bash
-   docker compose pull
    docker compose up -d
    ```
 
