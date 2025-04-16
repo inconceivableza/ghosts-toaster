@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   ghost_${SITE_NAME}:
     image: ghost:5-alpine
