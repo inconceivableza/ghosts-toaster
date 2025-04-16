@@ -61,23 +61,6 @@ EOL
 
 echo "Created site configuration at $SITE_DIR/site.env"
 
-# Create an example site.env file for reference
-cat > "$SITE_DIR/site.env.example" << EOL
-# Site information
-SITE_NAME=$SITE_NAME
-SITE_DOMAIN=$SITE_DOMAIN
-
-# Database configuration (automatically generated, no need to edit)
-DB_USER=$DB_USER
-DB_PASSWORD=auto_generated_secure_password
-DB_NAME=$DB_NAME
-
-# Static site generation configuration
-STATIC_SITE_OUTPUT_DIR=/var/www/static/$SITE_DOMAIN
-EOL
-
-echo "Created example configuration at $SITE_DIR/site.env.example"
-
 # Generate the site-specific Docker Compose file
 echo "Generating Docker Compose configuration..."
 ./scripts/generate-site-config.sh
