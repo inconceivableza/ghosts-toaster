@@ -82,7 +82,7 @@ echo "Generating Caddy environment variables..."
 SITES_LIST=""
 SITES_NAMES=""
 
-find "$SITES_DIR" -type f -name "site.env" | while read env_file; do
+for env_file in $(find "$SITES_DIR" -type f -name "site.env"); do
     source "$env_file"
     if [ -n "$SITE_DOMAIN" ]; then
         if [ -z "$SITES_LIST" ]; then
@@ -95,8 +95,10 @@ find "$SITES_DIR" -type f -name "site.env" | while read env_file; do
     fi
 done
 
+
 # Update global environment file with site list and preserve prefix settings
 if [ -n "$SITES_LIST" ]; then
+    echo "Updating global environment file"
     grep -v "^SITES=" "$GLOBAL_ENV_FILE" > "$GLOBAL_ENV_FILE.tmp" || touch "$GLOBAL_ENV_FILE.tmp"
     grep -v "^SITE_NAMES=" "$GLOBAL_ENV_FILE.tmp" > "$GLOBAL_ENV_FILE.tmp2" || touch "$GLOBAL_ENV_FILE.tmp2"
     mv "$GLOBAL_ENV_FILE.tmp2" "$GLOBAL_ENV_FILE.tmp"
@@ -104,19 +106,6 @@ if [ -n "$SITES_LIST" ]; then
     # Add the site lists
     echo "SITES=$SITES_LIST" >> "$GLOBAL_ENV_FILE.tmp"
     echo "SITE_NAMES=$SITES_NAMES" >> "$GLOBAL_ENV_FILE.tmp"
-    
-    # Preserve prefix settings if they exist
-    if [ -n "$GHOST_PREFIX" ]; then
-        grep -v "^GHOST_PREFIX=" "$GLOBAL_ENV_FILE.tmp" > "$GLOBAL_ENV_FILE.tmp2" || cp "$GLOBAL_ENV_FILE.tmp" "$GLOBAL_ENV_FILE.tmp2"
-        echo "GHOST_PREFIX=$GHOST_PREFIX" >> "$GLOBAL_ENV_FILE.tmp2"
-        mv "$GLOBAL_ENV_FILE.tmp2" "$GLOBAL_ENV_FILE.tmp"
-    fi
-    
-    if [ -n "$STATIC_PREFIX" ]; then
-        grep -v "^STATIC_PREFIX=" "$GLOBAL_ENV_FILE.tmp" > "$GLOBAL_ENV_FILE.tmp2" || cp "$GLOBAL_ENV_FILE.tmp" "$GLOBAL_ENV_FILE.tmp2"
-        echo "STATIC_PREFIX=$STATIC_PREFIX" >> "$GLOBAL_ENV_FILE.tmp2"
-        mv "$GLOBAL_ENV_FILE.tmp2" "$GLOBAL_ENV_FILE.tmp"
-    fi
     
     mv "$GLOBAL_ENV_FILE.tmp" "$GLOBAL_ENV_FILE"
     echo "Updated $GLOBAL_ENV_FILE with SITES=$SITES_LIST"
