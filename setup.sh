@@ -2,7 +2,6 @@
 # Main setup script for ghosts-toaster hosting platform
 
 # Set up project structure
-echo "Creating directories if they don't exist..."
 mkdir -p sites
 mkdir -p static
 mkdir -p backups
@@ -21,8 +20,12 @@ fi
 
 # Load global environment variables to get prefixes
 source ghosts-toaster.env
-GHOST_PREFIX=${GHOST_PREFIX:-ghost}
-STATIC_PREFIX=${STATIC_PREFIX:-www}
+
+if [ "$SITES" == "" ]
+  then
+    echo "No sites defined yet. Use ./scripts/create-site.sh to add a site before starting the system" >&2
+    exit 1
+  fi
 
 echo "Generating site configurations..."
 ./scripts/generate-site-config.sh
