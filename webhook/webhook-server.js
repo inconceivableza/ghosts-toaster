@@ -185,9 +185,3 @@ app.post('/webhook/:siteName', (req, res) => {
 app.listen(port, () => {
   console.log(`Webhook receiver listening on port ${port}`);
 });
-
-
-// Start the server
-app.listen(port, () => {
-  console.log(`Webhook receiver listening on port ${port}`);
-});

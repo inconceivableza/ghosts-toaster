@@ -1,6 +1,8 @@
 #!/bin/bash
 # Main setup script for ghosts-toaster hosting platform
 
+. "`dirname "$0"`"/scripts/utils.sh
+
 # Set up project structure
 mkdir -p sites
 mkdir -p static
@@ -34,7 +36,7 @@ echo "Starting the system..."
 docker compose up -d
 
 echo "Waiting for services to initialize (30 seconds)..."
-sleep 30
+wait_for_containers 30 mysql redis static-generator caddy webhook-receiver
 
 echo "Setup complete! Your ghosts-toaster platform is now running."
 echo ""
