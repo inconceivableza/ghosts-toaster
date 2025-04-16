@@ -104,5 +104,5 @@ volumes:
 
 # Include all site-specific compose files
 # Each file should be named after the site's hostname
-x-include:
-  - path: ./sites/*/*.yml
+include:
+  - include-sites.yml

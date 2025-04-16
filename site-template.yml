@@ -7,6 +7,7 @@ services:
     restart: unless-stopped
     environment:
       # Ghost configuration
+      # these parameters are defined in site.env and passed in from include-sites.yml
       database__client: mysql
       database__connection__host: mysql
       database__connection__user: ${DB_USER}
@@ -14,12 +15,7 @@ services:
       database__connection__database: ${DB_NAME}
       url: https://${SITE_DOMAIN}
       NODE_ENV: production
-      
-      # Mail configuration from global environment
-      mail__transport: ${MAIL_TRANSPORT}
-      mail__options__service: ${MAIL_SERVICE}
-      mail__options__auth__user: ${MAIL_USER}
-      mail__options__auth__pass: ${MAIL_PASSWORD}
+      # mail__ configuration is defined in global environment
     volumes:
       - ghost_content_${SITE_NAME}:/var/lib/ghost/content
     networks:
@@ -27,11 +23,7 @@ services:
     depends_on:
       - mysql
     env_file:
-      - ./ghosts-toaster.env
+      - ../../ghosts-toaster.env
 
 volumes:
   ghost_content_${SITE_NAME}:
-
-networks:
-  ghost_network:
-    external: true
