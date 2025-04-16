@@ -13,9 +13,8 @@ fi
 
 # Check if global environment file exists, create from example if needed
 if [ ! -f "$GLOBAL_ENV_FILE" ] && [ -f "$GLOBAL_ENV_FILE.example" ]; then
-    echo "Global environment file not found, creating from example..."
-    cp "$GLOBAL_ENV_FILE.example" "$GLOBAL_ENV_FILE"
-    echo "Created $GLOBAL_ENV_FILE from example"
+    echo "Global environment file not found, please populate from $GLOBAL_ENV_FILE.example..."
+    exit 1
 fi
 
 # Load global environment to get prefixes
