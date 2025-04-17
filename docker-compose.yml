@@ -65,7 +65,7 @@ services:
     command: >
       sh -c "
         apk add --no-cache git nodejs npm ca-certificates wget &&
-        npm install -g ghost-static-site-generator && 
+        npm install -g github:inconceivableza/ghost-static-site-generator &&
         echo 'Static site generator container started' && 
         # Set git configuration
         git config --global user.email 'ghost-static@ghosts-toaster.local' &&
