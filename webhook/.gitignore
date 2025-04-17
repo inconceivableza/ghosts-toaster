@@ -1,6 +1,3 @@
-# ignore generated file
-./include-sites.yml
-
 ## the below is from github's gitignore for Node
 
 # Logs
