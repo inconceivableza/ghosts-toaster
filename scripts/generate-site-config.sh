@@ -49,9 +49,11 @@ generate_site_config() {
     if [ -n "$DB_NAME" ] && [ -n "$DB_USER" ] && [ -n "$DB_PASSWORD" ]; then
         echo "Ensuring database $DB_NAME exists with user $DB_USER..."
         # This command should be run when the MySQL container is already running
+        # We alter the user as well as creating it because that way the password will be reset even if the user already exists.
         docker exec mysql mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -e "
             CREATE DATABASE IF NOT EXISTS \`$DB_NAME\`;
             CREATE USER IF NOT EXISTS '$DB_USER'@'%' IDENTIFIED BY '$DB_PASSWORD';
+            ALTER USER '$DB_USER'@'%' IDENTIFIED BY '$DB_PASSWORD';
             GRANT ALL PRIVILEGES ON \`$DB_NAME\`.* TO '$DB_USER'@'%';
             FLUSH PRIVILEGES;
         " 2>/dev/null || echo "Warning: Could not create database (is MySQL running?)"
