@@ -10,8 +10,8 @@ echo "Backing up all databases..."
 MYSQL_ROOT_PASSWORD=$(grep MYSQL_ROOT_PASSWORD ghosts-toaster.env | cut -d= -f2)
 databases=`docker exec mysql mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -e "SHOW DATABASES;" | grep -v "Database\|information_schema\|performance_schema\|mysql\|sys"`
 for database in $databases; do
-  echo "Backing up database: $db"
-  docker exec mysql mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" "$db" > "$BACKUP_DIR/$db.sql"
+  echo "Backing up database: $database"
+  docker exec mysql mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" --databases "$database" > "$BACKUP_DIR/$database.sql"
 done
 
 # Back up Ghost content
