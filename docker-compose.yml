@@ -93,7 +93,7 @@ services:
       webhook_network: {}
     depends_on:
       - static-generator
-    command: sh -c "apk add --no-cache docker-cli && npm install && node webhook-server.js"
+    command: sh -c "apk add --no-cache docker-cli bash && npm install && node webhook-server.js"
     environment:
       - PORT=9000
     env_file:
