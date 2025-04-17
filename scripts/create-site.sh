@@ -31,32 +31,34 @@ mkdir -p "$SITES_DIR"
 # Check if the site already exists
 if [ -d "$SITE_DIR" ]; then
     echo "Error: Site directory $SITE_DIR already exists!" >&2
-    exit 1
-fi
+    echo
+    echo Information for site $SITE_NAME at $SITE_DOMAIN follows:
+else
+    # Create site directory
+    mkdir -p "$SITE_DIR"
 
-# Create site directory
-mkdir -p "$SITE_DIR"
+    # Generate a random 24-character password
+    # Using SHA256 for random data and cutting to 24 characters
+    export DB_PASSWORD=$(head -c 32 /dev/urandom | sha256sum | head -c 24)
 
-# Generate a random 24-character password
-# Using SHA256 for random data and cutting to 24 characters
-export DB_PASSWORD=$(head -c 32 /dev/urandom | sha256sum | head -c 24)
+    # Set database name and user
+    export DB_USER="ghost_${SITE_NAME}"
+    export DB_NAME="ghost_${SITE_NAME}"
 
-# Set database name and user
-export DB_USER="ghost_${SITE_NAME}"
-export DB_NAME="ghost_${SITE_NAME}"
+    # Create the site.env file
+    envsubst < "$ENV_TEMPLATE_FILE" '$SITE_NAME $SITE_DOMAIN $DB_NAME $DB_USER $DB_PASSWORD' | grep -v '# This is a template' > "$SITE_DIR/site.env"
+    echo "Created site configuration at $SITE_DIR/site.env"
 
-# Create the site.env file
-envsubst < "$ENV_TEMPLATE_FILE" '$SITE_NAME $SITE_DOMAIN $DB_NAME $DB_USER $DB_PASSWORD' | grep -v '# This is a template' > "$SITE_DIR/site.env"
-echo "Created site configuration at $SITE_DIR/site.env"
+    # Generate the site-specific Docker Compose file
+    echo "Generating Docker Compose configuration..."
+    ./scripts/generate-site-config.sh
 
-# Generate the site-specific Docker Compose file
-echo "Generating Docker Compose configuration..."
-./scripts/generate-site-config.sh
-
-echo "Site $SITE_NAME at $SITE_DOMAIN has been created."
+    echo "Site $SITE_NAME at $SITE_DOMAIN has been created."
 echo "Database user: $DB_USER"
 echo "Database name: $DB_NAME"
 echo "Database password: $DB_PASSWORD (keep this secure!)"
+fi
+
 echo ""
 echo "To apply changes and start the site:"
 echo "1. Run: docker compose up -d"
