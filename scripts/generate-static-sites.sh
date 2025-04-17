@@ -3,6 +3,7 @@
 
 SITES_DIR="./sites"
 STATIC_DIR="./static"
+SG_STATIC_DIR="/static"
 GLOBAL_ENV_FILE="./ghosts-toaster.env"
 
 # Load global environment variables
@@ -31,20 +32,21 @@ generate_static_site() {
     
     local site_domain="$SITE_DOMAIN"
     local site_name="$SITE_NAME"
-    local output_dir="${STATIC_SITE_OUTPUT_DIR:-$STATIC_DIR/$site_domain}"
+    local local_output_dir="$STATIC_DIR/$site_domain"
+    local sg_output_dir="$SG_STATIC_DIR/$site_domain"
     
     echo "Generating static site for $site_domain..."
     
     # Create output directory if it doesn't exist
-    mkdir -p "$output_dir"
+    docker exec static-generator mkdir -p "$sg_output_dir"
     
     # Use docker exec to run the static site generator in the container
-    docker exec static-generator gssg --url "http://ghost_${site_name}:2368" --dest "/output/$site_domain"
+    docker exec static-generator gssg --url "http://ghost_${site_name}:2368" --dest "$sg_output_dir"
     
-    echo "Static site for $site_domain generated in $output_dir"
+    echo "Static site for $site_domain generated in $local_output_dir"
     
     # Update Git repository for the static site
-    if [ -d "$output_dir" ]; then
+    if [ -d "$local_output_dir" ]; then
         echo "Updating Git repository for $site_domain..."
         ./scripts/update-git-repository.sh "$site_domain"
     fi

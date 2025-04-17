@@ -57,7 +57,7 @@ services:
     container_name: static-generator
     restart: unless-stopped
     volumes:
-      - ./static:/output
+      - ./static:/static:rw
       - ./scripts:/scripts
     networks:
       - ghost_network

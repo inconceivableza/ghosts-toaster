@@ -8,12 +8,13 @@ if [ $# -lt 2 ]; then
     exit 1
 fi
 
-SITE_NAME=$1
-SITE_DOMAIN=$2
+export SITE_NAME=$1
+export SITE_DOMAIN=$2
 SITES_DIR="./sites"
 SITE_DIR="$SITES_DIR/$SITE_DOMAIN"
 STATIC_DIR="./static/$SITE_DOMAIN"
 GLOBAL_ENV_FILE="./ghosts-toaster.env"
+ENV_TEMPLATE_FILE="./site-template.env"
 
 # Load global environment variables to get prefixes
 if [ -f "$GLOBAL_ENV_FILE" ]; then
@@ -29,7 +30,7 @@ mkdir -p "$SITES_DIR"
 
 # Check if the site already exists
 if [ -d "$SITE_DIR" ]; then
-    echo "Error: Site directory $SITE_DIR already exists!"
+    echo "Error: Site directory $SITE_DIR already exists!" >&2
     exit 1
 fi
 
@@ -38,27 +39,14 @@ mkdir -p "$SITE_DIR"
 
 # Generate a random 24-character password
 # Using SHA256 for random data and cutting to 24 characters
-DB_PASSWORD=$(head -c 32 /dev/urandom | sha256sum | head -c 24)
+export DB_PASSWORD=$(head -c 32 /dev/urandom | sha256sum | head -c 24)
 
 # Set database name and user
-DB_USER="ghost_${SITE_NAME}"
-DB_NAME="ghost_${SITE_NAME}"
+export DB_USER="ghost_${SITE_NAME}"
+export DB_NAME="ghost_${SITE_NAME}"
 
 # Create the site.env file
-cat > "$SITE_DIR/site.env" << EOL
-# Site information
-SITE_NAME=$SITE_NAME
-SITE_DOMAIN=$SITE_DOMAIN
-
-# Database configuration (automatically generated)
-DB_USER=$DB_USER
-DB_PASSWORD=$DB_PASSWORD
-DB_NAME=$DB_NAME
-
-# Static site generation configuration
-STATIC_SITE_OUTPUT_DIR=/var/www/static/$SITE_DOMAIN
-EOL
-
+envsubst < "$ENV_TEMPLATE_FILE" '$SITE_NAME $SITE_DOMAIN $DB_NAME $DB_USER $DB_PASSWORD' | grep -v '# This is a template' > "$SITE_DIR/site.env"
 echo "Created site configuration at $SITE_DIR/site.env"
 
 # Generate the site-specific Docker Compose file
