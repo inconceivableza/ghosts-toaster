@@ -43,7 +43,7 @@ function generateStaticSite(siteName, siteDomain) {
     // Remove from pending
     pendingGenerations.delete(siteName);
     
-    const outputDir = `/output/${siteDomain}`;
+    const outputDir = `/static/${siteDomain}`;
     
     // Create output directory if it doesn't exist
     if (!fs.existsSync(outputDir)) {
@@ -56,7 +56,7 @@ function generateStaticSite(siteName, siteDomain) {
       }
     }
     
-    const command = `docker exec static-generator gssg --url http://ghost_${siteName}:2368 --dest ${outputDir}`;
+    const command = `docker exec static-generator gssg --domain http://ghost_${siteName}:2368 --productionDomain https://${siteDomain} --dest ${outputDir} --avoid-https`;
     
     console.log(`Executing command: ${command}`);
     
