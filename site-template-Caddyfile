@@ -5,19 +5,19 @@ ${SITE_DOMAIN} {
     }
     
     handle @static {
-        import static_site ${SITE_NAME}
+        import static_site ${SITE_NAME} ${SITE_DOMAIN}
     }
     
     handle /ghost* {
-        import ghost_admin ${SITE_NAME}
+        import ghost_admin ${SITE_NAME} ${SITE_DOMAIN}
     }
 }
 
 {$STATIC_PREFIX}.${SITE_DOMAIN} {
-    import static_site ${SITE_NAME}
+    import static_site ${SITE_NAME} ${SITE_DOMAIN}
 }
 
 {$GHOST_PREFIX}.${SITE_DOMAIN} {
-    import ghost_admin ${SITE_NAME}
+    import ghost_admin ${SITE_NAME} ${SITE_DOMAIN}
 }
 

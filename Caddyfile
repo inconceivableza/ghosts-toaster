@@ -11,7 +11,7 @@
 
 # Snippet for static site configuration
 (static_site) {
-    root * /var/www/static/{args.0}
+    root * /var/www/static/{args.1}
     file_server
     encode gzip
 }
