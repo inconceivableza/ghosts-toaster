@@ -33,11 +33,15 @@ if [ "$SITES" == "" ]
 echo "Generating site configurations..."
 ./scripts/generate-site-config.sh
 
+site_containers=""
+for SITE_NAME in $SITE_NAMES; do
+    site_containers="$site_containers ghost_$SITE_NAME"
+done
 echo "Starting the system..."
 docker compose up -d
 
-echo "Waiting for services to initialize (30 seconds)..."
-wait_for_containers 30 mysql redis static-generator caddy webhook-receiver
+echo "Waiting for services to initialize (30 seconds) including $site_containers..."
+wait_for_containers 30 mysql redis static-generator caddy webhook-receiver $site_containers
 
 echo "Setup complete! Your ghosts-toaster platform is now running."
 echo ""
