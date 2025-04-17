@@ -7,7 +7,9 @@ const crypto = require('crypto');
 
 const app = express();
 const port = process.env.PORT || 9000;
-const webhookSecret = process.env.WEBHOOK_SECRET || 'changeme';
+const webhookSecret = process.env.WEBHOOK_SECRET;
+
+if (!webhookSecret) throw Error("Please define WEBHOOK_SECRET to a secure key");
 
 // Track running static site generations
 const runningGenerations = new Map();

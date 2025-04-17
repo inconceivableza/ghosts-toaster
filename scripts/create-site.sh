@@ -67,9 +67,9 @@ echo ""
 # Get the webhook secret from the global environment file
 WEBHOOK_SECRET=$(grep WEBHOOK_SECRET $GLOBAL_ENV_FILE | cut -d= -f2)
 if [ -z "$WEBHOOK_SECRET" ]; then
-    WEBHOOK_SECRET="changeme"
-    echo "WARNING: No webhook secret found in $GLOBAL_ENV_FILE! Using default value 'changeme'."
-    echo "Please update the WEBHOOK_SECRET in $GLOBAL_ENV_FILE for security."
+    echo "ERROR: No webhook secret found in $GLOBAL_ENV_FILE!." >&2
+    echo "Please update the WEBHOOK_SECRET in $GLOBAL_ENV_FILE for security." >&2
+    exit 1
 fi
 
 echo "===== Setting up webhook for automatic static site generation ====="
