@@ -111,15 +111,23 @@ app.post('/webhook/:siteName', (req, res) => {
   
   // Verify the signature if provided
   if (signature) {
-    const payload = JSON.stringify(req.body);
-    const hmac = crypto.createHmac('sha256', webhookSecret)
-      .update(payload)
-      .digest('hex');
+    // Get the request body as a JSON string
+    const reqBodyJSON = JSON.stringify(req.body);
+    // Extract the hash and timestamp from the x-ghost-signature header
+    const {sha256, t} = signature
+      .split(', ')
+      .map((x) => x.split('='))
+      .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {})
+    // Recreate the hash using the secret, request body, and timestamp and compare it to the hash from the header
+    const expectedHmac = crypto.createHmac('sha256', webhookSecret).update(`${reqBodyJSON}${t}`).digest('hex')
     
-    if (hmac !== signature) {
-      console.log(`Invalid signature for site ${siteName}`);
+    if (sha256 !== expectedHmac) {
+      console.log(`Invalid signature for site ${siteName}: ${signature}, expected ${expectedHmac}\n${reqBodyJSON}${t}`);
       return res.status(401).send('Invalid signature');
     }
+  } else {
+    console.log(`No signature received in webhook for site ${siteName}`);
+    return res.status(401).send('No signature');
   }
   
   console.log(`Received webhook for site: ${siteName}`);
