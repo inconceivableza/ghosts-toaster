@@ -86,8 +86,10 @@ services:
       - ./sites:/sites:ro
     working_dir: /app
     networks:
-      - ghost_network
-      - webhook_network
+      ghost_network:
+        aliases:
+          - webhook-receiver.docker.internal
+      webhook_network: {}
     depends_on:
       - static-generator
     command: sh -c "npm install && node webhook-server.js"
