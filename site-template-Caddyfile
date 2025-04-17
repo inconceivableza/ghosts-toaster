@@ -1,0 +1,23 @@
+# In this template file, $SITE_DOMAIN and $SITE_NAME are substituted by generate-site-config.sh, so are not Caddyfile variables
+${SITE_DOMAIN} {
+    @static {
+        not path /ghost*
+    }
+    
+    handle @static {
+        import static_site ${SITE_NAME}
+    }
+    
+    handle /ghost* {
+        import ghost_admin ${SITE_NAME}
+    }
+}
+
+{$STATIC_PREFIX}.${SITE_DOMAIN} {
+    import static_site ${SITE_NAME}
+}
+
+{$GHOST_PREFIX}.${SITE_DOMAIN} {
+    import ghost_admin ${SITE_NAME}
+}
+

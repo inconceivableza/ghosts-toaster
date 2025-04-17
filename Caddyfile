@@ -19,25 +19,5 @@
 # For each site, configure base domain, www subdomain, and ghost admin subdomain
 # The configuration is automatically generated based on the directory structure
 
-{$SITES|*} {
-    @static {
-        not path /ghost*
-    }
-    
-    handle @static {
-        import static_site {$SITE_NAME}
-    }
-    
-    handle /ghost* {
-        import ghost_admin {$SITE_NAME}
-    }
-}
-
-{$STATIC_PREFIX}.{$SITES|*} {
-    import static_site {$SITE_NAME}
-}
-
-{$GHOST_PREFIX}.{$SITES|*} {
-    import ghost_admin {$SITE_NAME}
-}
+import caddy-sites/*.Caddyfile
 

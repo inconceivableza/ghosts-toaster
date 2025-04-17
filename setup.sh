@@ -4,6 +4,7 @@
 . "`dirname "$0"`"/scripts/utils.sh
 
 # Set up project structure
+mkdir -p caddy-sites
 mkdir -p sites
 mkdir -p static
 mkdir -p backups
