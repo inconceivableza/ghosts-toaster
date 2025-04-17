@@ -1,9 +1,6 @@
 {
     # Global Caddy options
     email {$CADDY_EMAIL}
-    
-    # Enable automatic HTTPS
-    auto_https enable_redirects
 }
 
 # Snippet for common Ghost admin configuration
