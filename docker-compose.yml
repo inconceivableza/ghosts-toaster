@@ -93,7 +93,8 @@ services:
     command: sh -c "npm install && node webhook-server.js"
     environment:
       - PORT=9000
-      - WEBHOOK_SECRET=${WEBHOOK_SECRET:-changeme}
+    env_file:
+      - ./ghosts-toaster.env
 
 volumes:
   caddy_data:
