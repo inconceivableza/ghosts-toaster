@@ -41,7 +41,7 @@ generate_static_site() {
     docker exec static-generator mkdir -p "$sg_output_dir"
     
     # Use docker exec to run the static site generator in the container
-    docker exec static-generator gssg --domain "http://ghost_${site_name}:2368" --productionDomain "https://$SITE_DOMAIN" --dest "$sg_output_dir"
+    docker exec static-generator gssg --domain "http://ghost_${site_name}:2368" --productionDomain "https://$SITE_DOMAIN" --dest "$sg_output_dir" --avoid-https
     
     echo "Static site for $site_domain generated in $local_output_dir"
     
