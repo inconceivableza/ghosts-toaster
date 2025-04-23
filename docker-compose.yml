@@ -65,6 +65,8 @@ services:
     command: >
       sh -c "
         apk add --no-cache git nodejs npm ca-certificates wget &&
+        apk add --no-cache bash python3 py3-pip py3-pkgconfig python3-dev gcc musl-dev linux-headers pkgconfig libxml2-dev &&
+        pip install --root-user-action=ignore --break-system-packages git+https://github.com/ArchiveTeam/ludios_wpull@5.0.3 &&
         npm install -g github:inconceivableza/ghost-static-site-generator &&
         echo 'Static site generator container started' && 
         # Set git configuration
