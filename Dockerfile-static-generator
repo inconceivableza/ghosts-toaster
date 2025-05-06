@@ -1,0 +1,6 @@
+FROM alpine:latest
+
+RUN apk add --no-cache git nodejs npm ca-certificates wget openssh-client
+RUN apk add --no-cache bash python3 py3-pip py3-pkgconfig python3-dev gcc musl-dev linux-headers pkgconfig libxml2-dev
+RUN pip install --root-user-action=ignore --break-system-packages git+https://github.com/ArchiveTeam/ludios_wpull@5.0.3
+RUN npm install -g github:inconceivableza/ghost-static-site-generator
