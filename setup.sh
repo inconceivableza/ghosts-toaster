@@ -8,6 +8,8 @@ mkdir -p caddy-sites
 mkdir -p sites
 mkdir -p static
 mkdir -p backups
+mkdir -p ssh
+chmod go-rwx ssh
 
 # Create global environment file from example if it doesn't exist
 if [ ! -f "ghosts-toaster.env" ] && [ -f "ghosts-toaster.env.example" ]; then

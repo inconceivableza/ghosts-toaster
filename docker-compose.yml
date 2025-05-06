@@ -59,15 +59,18 @@ services:
     volumes:
       - ./static:/static:rw
       - ./scripts:/scripts
+      - ./ssh:/root/.ssh:rw
     networks:
       - ghost_network
       - webhook_network
     command: >
       sh -c "
-        apk add --no-cache git nodejs npm ca-certificates wget &&
+        apk add --no-cache git nodejs npm ca-certificates wget openssh-client &&
         apk add --no-cache bash python3 py3-pip py3-pkgconfig python3-dev gcc musl-dev linux-headers pkgconfig libxml2-dev &&
         pip install --root-user-action=ignore --break-system-packages git+https://github.com/ArchiveTeam/ludios_wpull@5.0.3 &&
         npm install -g github:inconceivableza/ghost-static-site-generator &&
+        # Initialize ssh keys
+        [ -f /root/.ssh/id_ed25519 ] || ssh-keygen -N '' -t ed25519 -C '${SSH_KEY_NAME:-static-generator@ghosts-toaster.local}' -f /root/.ssh/id_ed25519
         echo 'Static site generator container started' && 
         # Set git configuration
         git config --global user.email 'ghost-static@ghosts-toaster.local' &&
