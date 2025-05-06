@@ -174,6 +174,13 @@ MAIL_USER=postmaster@example.com
 MAIL_PASSWORD=your_mail_password
 ```
 
+Ghost uses this configuration for transactional email (user sign-up etc;
+obviously how this works in a static site may be different).
+
+For sending newsletters, it uses a different email setup with the Mailgun API;
+if you want to use this, it must be [configured manually for each site in the Ghost settings](https://ghost.org/docs/faq/mailgun-newsletters/).
+
+
 ## Security Considerations
 
 1. Use strong passwords (automatically handled by the site creation script)
