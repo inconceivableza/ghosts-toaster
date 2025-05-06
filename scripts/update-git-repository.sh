@@ -8,7 +8,7 @@ if [ -z "$1" ]; then
 fi
 
 SITE_DOMAIN="$1"
-STATIC_DIR="../static"
+STATIC_DIR="/static"
 SITE_DIR="$STATIC_DIR/$SITE_DOMAIN"
 
 if [ ! -d "$SITE_DIR" ]; then
