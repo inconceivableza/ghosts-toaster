@@ -1,23 +1,22 @@
 {
-    # Global Caddy options
-    email {$CADDY_EMAIL}
+	# Global Caddy options
+	email {$CADDY_EMAIL}
 }
 
 # Snippet for common Ghost admin configuration
 (ghost_admin) {
-    # Reverse proxy for Ghost admin
-    reverse_proxy ghost_{args[0]}:2368
+	# Reverse proxy for Ghost admin
+	reverse_proxy ghost_{args[0]}:2368
 }
 
 # Snippet for static site configuration
 (static_site) {
-    root * /var/www/static/{args[1]}
-    file_server
-    encode gzip
+	root * /var/www/static/{args[1]}
+	file_server
+	encode gzip
 }
 
 # For each site, configure base domain, www subdomain, and ghost admin subdomain
 # The configuration is automatically generated based on the directory structure
 
 import caddy-sites/*.Caddyfile
-
