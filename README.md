@@ -8,9 +8,9 @@ and then [publishing the generated content to static files](https://github.com/S
 Ghost itself only supports running a single site on a host, so Docker containers are used for the different Ghost sites.
 [Caddy](https://caddyserver.com/) is used as a front-end server that also generates SSL certificates for each domain.
 
-_Many ghosts need static hosts_
-_With reasonable performance_
-_Take those ghosts and make them toast_
+_Many ghosts need static hosts_ \
+_With reasonable performance_ \
+_Take those ghosts and make them toast_ \
 _To serve up to your audience_
 
 This guide will walk you through setting up and managing multiple Ghost websites on a single host using Docker Compose and Caddy.
