@@ -6,12 +6,12 @@
 # Snippet for common Ghost admin configuration
 (ghost_admin) {
     # Reverse proxy for Ghost admin
-    reverse_proxy ghost_{args.0}:2368
+    reverse_proxy ghost_{args[0]}:2368
 }
 
 # Snippet for static site configuration
 (static_site) {
-    root * /var/www/static/{args.1}
+    root * /var/www/static/{args[1]}
     file_server
     encode gzip
 }
