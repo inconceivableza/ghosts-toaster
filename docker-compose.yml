@@ -101,6 +101,18 @@ services:
     env_file:
       - ./ghosts-toaster.env
 
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    volumes:
+     - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      WATCHTOWER_CLEANUP: "true"
+      TZ: "UTC"
+    restart: unless-stopped
+    env_file:
+      - ./ghosts-toaster.env
+
 volumes:
   caddy_data:
   caddy_config:
