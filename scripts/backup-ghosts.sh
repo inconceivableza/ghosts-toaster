@@ -7,7 +7,7 @@ mkdir -p $BACKUP_DIR
 
 # Back up MySQL
 echo "Backing up all databases..."
-MYSQL_ROOT_PASSWORD=$(grep MYSQL_ROOT_PASSWORD ghosts-toaster.env | cut -d= -f2)
+MYSQL_ROOT_PASSWORD=$(grep MYSQL_ROOT_PASSWORD .env | cut -d= -f2)
 databases=`docker exec mysql mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -e "SHOW DATABASES;" | grep -v "Database\|information_schema\|performance_schema\|mysql\|sys"`
 for database in $databases; do
   echo "Backing up database: $database"

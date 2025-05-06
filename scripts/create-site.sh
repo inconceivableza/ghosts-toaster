@@ -13,7 +13,7 @@ export SITE_DOMAIN=$2
 SITES_DIR="./sites"
 SITE_DIR="$SITES_DIR/$SITE_DOMAIN"
 STATIC_DIR="./static/$SITE_DOMAIN"
-GLOBAL_ENV_FILE="./ghosts-toaster.env"
+GLOBAL_ENV_FILE="./.env"
 ENV_TEMPLATE_FILE="./site-template.env"
 
 # Load global environment variables to get prefixes

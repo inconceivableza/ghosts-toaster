@@ -21,7 +21,7 @@ services:
     depends_on:
       - mysql
     env_file:
-      - ../../ghosts-toaster.env
+      - ../../.env
 
 volumes:
   ghost_content_${SITE_NAME}:

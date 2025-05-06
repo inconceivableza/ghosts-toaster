@@ -25,10 +25,10 @@ This guide will walk you through setting up and managing multiple Ghost websites
 
 2. **Create environment file from example**:
    ```bash
-   cp ghosts-toaster.env.example ghosts-toaster.env
+   cp ghosts-toaster.env.example .env
    ```
    
-   Edit the `ghosts-toaster.env` file to set your global configuration, mail settings, and webhook secret.
+   Edit the `.env` file to set your global configuration, mail settings, and webhook secret.
    By default, it's set to serve up the dynamic sites at `ghost.$SITE_DOMAIN` and the static sites at `www.$SITE_DOMAIN`
    If you prefer to serve the static sites via a CDN etc, then adjust the prefixes in this file.
    There are also options for how frequently [watchtower](https://containrrr.dev/watchtower/) should update the software, and where to send its email updates.
@@ -168,7 +168,7 @@ volumes:
 
 ### Email Configuration
 
-All sites share the same email configuration defined in the global `ghosts-toaster.env` file:
+All sites share the same email configuration defined in the global `.env` file:
 
 ```bash
 # Shared mail configuration
@@ -188,7 +188,7 @@ if you want to use this, it must be [configured manually for each site in the Gh
 ## Security Considerations
 
 1. Use strong passwords (automatically handled by the site creation script)
-2. Set a secure webhook secret in `ghosts-toaster.env`
+2. Set a secure webhook secret in `.env`
 3. Keep all containers updated (watchtower is configured to do this)
 4. Regularly back up your data
 5. Use a firewall to restrict access to necessary ports only

@@ -12,10 +12,10 @@ mkdir -p ssh
 chmod go-rwx ssh
 
 # Create global environment file from example if it doesn't exist
-if [ ! -f "ghosts-toaster.env" ] && [ -f "ghosts-toaster.env.example" ]; then
+if [ ! -f ".env" ] && [ -f "ghosts-toaster.env.example" ]; then
     echo "Creating global environment file from example..."
-    cp ghosts-toaster.env.example ghosts-toaster.env
-    echo "Created ghosts-toaster.env from example"
+    cp ghosts-toaster.env.example .env
+    echo "Created .env from example"
     
     # Generate a secure random webhook secret
     WEBHOOK_SECRET=$(head -c 32 /dev/urandom | sha256sum | head -c 32)
@@ -24,7 +24,7 @@ if [ ! -f "ghosts-toaster.env" ] && [ -f "ghosts-toaster.env.example" ]; then
 fi
 
 # Load global environment variables to get prefixes
-source ghosts-toaster.env
+source .env
 
 if [ "$SITES" == "" ]
   then

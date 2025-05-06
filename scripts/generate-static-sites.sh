@@ -4,7 +4,7 @@
 SITES_DIR="./sites"
 STATIC_DIR="./static"
 SG_STATIC_DIR="/static"
-GLOBAL_ENV_FILE="./ghosts-toaster.env"
+GLOBAL_ENV_FILE="./.env"
 
 # Load global environment variables
 if [ -f "$GLOBAL_ENV_FILE" ]; then

@@ -26,7 +26,7 @@ services:
     depends_on:
       - mysql
     env_file:
-      - ./ghosts-toaster.env
+      - ./.env
 
   # Shared MySQL database for all Ghost instances
   mysql:
@@ -34,7 +34,7 @@ services:
     container_name: mysql
     restart: unless-stopped
     env_file:
-      - ./ghosts-toaster.env
+      - ./.env
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
@@ -57,6 +57,8 @@ services:
       dockerfile: Dockerfile-static-generator
     container_name: static-generator
     restart: unless-stopped
+    env_file:
+      - ./.env
     volumes:
       - ./static:/static:rw
       - ./scripts:/scripts
@@ -69,7 +71,6 @@ services:
         # Initialize ssh keys
         [ -f /root/.ssh/id_ed25519 ] || ssh-keygen -N "" -t ed25519 -C "${SSH_KEY_NAME:-static-generator@ghosts-toaster.local}" -f /root/.ssh/id_ed25519
         echo "Static site generator container started" && 
-        set &&
         # Set git configuration
         git config --global user.email "${GIT_COMMITTER_EMAIL:-static-generator@ghosts-toaster.local}" &&
         git config --global user.name "${GIT_COMMITTER_NAME:-Ghosts Toaster}" &&
@@ -100,7 +101,7 @@ services:
     environment:
       - PORT=9000
     env_file:
-      - ./ghosts-toaster.env
+      - ./.env
 
   watchtower:
     image: containrrr/watchtower
@@ -112,7 +113,7 @@ services:
       TZ: "UTC"
     restart: unless-stopped
     env_file:
-      - ./ghosts-toaster.env
+      - ./.env
 
 volumes:
   caddy_data:

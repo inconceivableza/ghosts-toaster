@@ -4,7 +4,7 @@
 SITES_DIR="./sites"
 DOCKER_TEMPLATE_FILE="./site-template.yml"
 CADDY_TEMPLATE_FILE="./site-template-Caddyfile"
-GLOBAL_ENV_FILE="./ghosts-toaster.env"
+GLOBAL_ENV_FILE="./.env"
 
 # Check if global environment file exists, create from example if needed
 if [ ! -f "$GLOBAL_ENV_FILE" ] && [ -f "$GLOBAL_ENV_FILE.example" ]; then
