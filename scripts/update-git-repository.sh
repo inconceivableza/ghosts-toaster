@@ -22,15 +22,17 @@ echo "Updating Git repository for $SITE_DOMAIN..."
 cd "$SITE_DIR" || exit 1
 
 function show_git_instructions() {
-    echo "Please set up the remote, using docker compose exec static-generator bash:"
-    echo "  cd $SITE_DIR"
-    echo "  git remote add origin git@github.com:yourusername/$SITE_DOMAIN.git"
-    echo "Please also add the following ssh key as a deploy key for this repository, with write permissions:"
+    echo "Please add the following ssh key as a deploy key for this repository, with write permissions:"
     echo
     cat /root/.ssh/id_ed25519.pub
     echo
     echo "This can be done at https://github.com/yourusername/$SITE_DOMAIN/settings/keys"
     echo
+    echo "Then please set up the remote, using docker compose exec static-generator bash:"
+    echo "  cd $SITE_DIR"
+    echo "  git remote add origin git@github.com:yourusername/$SITE_DOMAIN.git"
+    echo "  git push -u origin main"
+    echo "This may ask you to confirm the remote github key"
 }
 
 # Initialize Git repository if it doesn't exist
