@@ -21,6 +21,18 @@ echo "Updating Git repository for $SITE_DOMAIN..."
 # Change to the static site directory
 cd "$SITE_DIR" || exit 1
 
+function show_git_instructions() {
+    echo "Please set up the remote, using docker compose exec static-generator bash:"
+    echo "  cd $SITE_DIR"
+    echo "  git remote add origin git@github.com:yourusername/$SITE_DOMAIN.git"
+    echo "Please also add the following ssh key as a deploy key for this repository, with write permissions:"
+    echo
+    cat /root/.ssh/id_ed25519.pub
+    echo
+    echo "This can be done at https://github.com/yourusername/$SITE_DOMAIN/settings/keys"
+    echo
+}
+
 # Initialize Git repository if it doesn't exist
 if [ ! -d ".git" ]; then
     echo "Initializing new Git repository in $SITE_DIR"
@@ -34,17 +46,12 @@ if [ ! -d ".git" ]; then
 node_modules/
 EOL
 
-    echo "Git repository initialized. Please set up the remote with:"
-    echo "  cd $SITE_DIR"
-    echo "  git remote add origin git@github.com:yourusername/$SITE_DOMAIN.git"
-    echo "  git branch -M main"
-    echo "Please also add the following ssh key as a deploy key for this repository, with write permissions:"
-    cat /root/.ssh/id_ed25519.pub
-    echo "This can be done at https://github.com/yourusername/$SITE_DOMAIN/settings/keys
-    
     # Perform initial commit
     git add --all .
     git commit -m "Initial commit - $(date '+%Y-%m-%d %H:%M:%S')"
+
+    echo "Git repository initialized."
+    show_git_instructions
 else
     echo "Git repository already exists in $SITE_DIR"
     
@@ -64,10 +71,8 @@ else
                 echo "Warning: Could not push to remote. Please check your git configuration."
             fi
         else
-            echo "Remote 'origin' not found. You can add it with:"
-            echo "  cd $SITE_DIR"
-            echo "  git remote add origin https://github.com/yourusername/$SITE_DOMAIN.git"
-            echo "  git branch -M main"
+            echo "Remote 'origin' not found. Follow these instructions to set up git remote:"
+            show_git_instructions
         fi
     else
         echo "No changes to commit for $SITE_DOMAIN"
