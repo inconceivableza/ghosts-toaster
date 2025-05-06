@@ -182,6 +182,19 @@ MAIL_PASSWORD=your_mail_password
 4. Regularly back up your data
 5. Use a firewall to restrict access to necessary ports only
 
+## Performance Considerations
+
+The static site generation will impose a greater load each time something changes in the site,
+but allows for much more efficient serving of the site, particularly if there is high load
+(as well as serving from a different host or CDN).
+
+See these references for how many ghost instances could be served from a single server:
+
+- [Multiple Ghost Instances on Digital Ocean Droplet](https://jazmy.medium.com/multiple-ghosts-instances-on-digital-ocean-droplet-43079693aa09)
+- [Filling up a 1GB server with a stack of Ghost blogs](https://techroads.org/filling-up-a-1gb-server-with-a-stack-of-ghost-blogs/) which estimates 65MB RAM per Ghost container, with a base of 150MB (I haven't checked this)
+
+Thanks to Joel Duncan for [Host Multiple Ghost Instances with Docker](https://joelduncan.io/docker-multiple-ghost-instances/)
+
 ## License
 
 The project is licensed under the [MIT license](./LICENSE)
