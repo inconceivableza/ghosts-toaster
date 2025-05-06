@@ -36,8 +36,11 @@ EOL
 
     echo "Git repository initialized. Please set up the remote with:"
     echo "  cd $SITE_DIR"
-    echo "  git remote add origin https://github.com/yourusername/$SITE_DOMAIN.git"
+    echo "  git remote add origin git@github.com:yourusername/$SITE_DOMAIN.git"
     echo "  git branch -M main"
+    echo "Please also add the following ssh key as a deploy key for this repository, with write permissions:"
+    cat /root/.ssh/id_ed25519.pub
+    echo "This can be done at https://github.com/yourusername/$SITE_DOMAIN/settings/keys
     
     # Perform initial commit
     git add --all .
