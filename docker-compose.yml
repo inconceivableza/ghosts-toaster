@@ -73,8 +73,8 @@ services:
         [ -f /root/.ssh/id_ed25519 ] || ssh-keygen -N '' -t ed25519 -C '${SSH_KEY_NAME:-static-generator@ghosts-toaster.local}' -f /root/.ssh/id_ed25519
         echo 'Static site generator container started' && 
         # Set git configuration
-        git config --global user.email 'ghost-static@ghosts-toaster.local' &&
-        git config --global user.name 'Ghost Static Generator' &&
+        git config --global user.email '${GIT_COMMITTER_EMAIL:-static-generator@ghosts-toaster.local}' &&
+        git config --global user.name '${GIT_COMMITTER_NAME:-Ghosts Toaster}' &&
         git config --global init.defaultBranch main &&
         # Keep container running
         tail -f /dev/null
