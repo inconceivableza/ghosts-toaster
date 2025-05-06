@@ -72,7 +72,7 @@ function generateStaticSite(siteName, siteDomain) {
       console.log(stdout);
       
       // Update git repository
-      const gitCommand = `cd /scripts && ./update-git-repository.sh ${siteDomain}`;
+      const gitCommand = `docker exec static-generator /scripts/update-git-repository.sh ${siteDomain}`;
       console.log(`Executing git update command: ${gitCommand}`);
       
       exec(gitCommand, (gitError, gitStdout, gitStderr) => {
