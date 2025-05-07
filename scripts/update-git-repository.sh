@@ -26,11 +26,11 @@ function show_git_instructions() {
     echo
     cat /root/.ssh/id_ed25519.pub
     echo
-    echo "This can be done at https://github.com/yourusername/$SITE_DOMAIN/settings/keys"
+    echo "This can be done at https://github.com/$GIT_OWNER_ID/$GIT_REPO_PREFIX$SITE_DOMAIN/settings/keys"
     echo
     echo "Then please set up the remote, using docker compose exec static-generator bash:"
     echo "  cd $SITE_DIR"
-    echo "  git remote add origin git@github.com:yourusername/$SITE_DOMAIN.git"
+    echo "  git remote add origin git@github.com:$GIT_OWNER_ID/$GIT_REPO_PREFIX$SITE_DOMAIN.git"
     echo "  git push -u origin main"
     echo "This may ask you to confirm the remote github key"
 }
