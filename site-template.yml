@@ -18,16 +18,17 @@ services:
       - ghost_content_${SITE_NAME}:/var/lib/ghost/content
     networks:
       - ghost_network
-    depends_on:
-      - mysql
     env_file:
       - ../../.env
     labels:
       group: ghost
     depends_on:
-      - mysql
-      - redis
-      - caddy
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      caddy:
+        condition: service_started
 
 volumes:
   ghost_content_${SITE_NAME}:
