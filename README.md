@@ -13,6 +13,8 @@ _With reasonable performance_ \
 _Take those ghosts and make them toast_ \
 _To serve up to your audience_
 
+<img src='icon/ghosts-toaster.png' width='100px' height='100px'/>
+
 This guide will walk you through setting up and managing multiple Ghost websites on a single host using Docker Compose and Caddy.
 
 ## Initial Setup
