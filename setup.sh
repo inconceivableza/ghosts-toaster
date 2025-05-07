@@ -3,6 +3,8 @@
 
 . "`dirname "$0"`"/scripts/utils.sh
 
+cd "`dirname "$0"`"
+
 # Set up project structure
 mkdir -p caddy-sites
 mkdir -p sites
@@ -16,11 +18,19 @@ if [ ! -f ".env" ] && [ -f "ghosts-toaster.env.example" ]; then
     echo "Creating global environment file from example..."
     cp ghosts-toaster.env.example .env
     echo "Created .env from example"
-    
-    # Generate a secure random webhook secret
+    echo "Please populate this following the README before continuing with setup" >&2
+    exit 1
+fi
+
+if grep very_secure_root_password .env > /dev/null || grep change_this_to_a_secure_random_string .env > /dev/null; then
+    echo Will generate a secure random webhook secret and/or mysql root password
+    MYSQL_ROOT_PASSWORD=$(head -c 32 /dev/urandom | sha256sum | head -c 32)
+    sed -i "s/very_secure_root_password/$MYSQL_ROOT_PASSWORD/" .env
+    grep $MYSQL_ROOT_PASSWORD .env > /dev/null && echo "Generated secure mysql root password"
     WEBHOOK_SECRET=$(head -c 32 /dev/urandom | sha256sum | head -c 32)
-    sed -i "s/change_this_to_a_secure_random_string/$WEBHOOK_SECRET/" ghosts-toaster.env
-    echo "Generated secure webhook secret"
+    sed -i "s/change_this_to_a_secure_random_string/$WEBHOOK_SECRET/" .env
+    grep $WEBHOOK_SECRET .env > /dev/null && echo "Generated secure webhook secret"
+    echo Password generation complete
 fi
 
 # Load global environment variables to get prefixes
