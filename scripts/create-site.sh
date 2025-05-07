@@ -50,7 +50,7 @@ else
     echo "Created site configuration at $SITE_DIR/site.env"
 
     # Generate the site-specific Docker Compose file
-    echo "Generating Docker Compose configuration..."
+    echo "Generating Docker Compose configuration and setting up database..."
     ./scripts/generate-site-config.sh
 
     echo "Site $SITE_NAME at $SITE_DOMAIN has been created."

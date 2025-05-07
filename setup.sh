@@ -36,6 +36,11 @@ fi
 # Load global environment variables to get prefixes
 source .env
 
+echo Starting up universal services
+docker compose create
+docker compose up -d `docker container ls --all --filter label=group=universal --format '{{.Names}}'`
+wait_for_container mysql
+
 if [ "$SITES" == "" ]
   then
     echo "No sites defined yet. Use ./scripts/create-site.sh to add a site before starting the system" >&2

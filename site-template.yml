@@ -22,6 +22,12 @@ services:
       - mysql
     env_file:
       - ../../.env
+    labels:
+      group: ghost
+    depends_on:
+      - mysql
+      - redis
+      - caddy
 
 volumes:
   ghost_content_${SITE_NAME}:

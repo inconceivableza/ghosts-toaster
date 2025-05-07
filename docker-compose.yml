@@ -27,6 +27,8 @@ services:
       - mysql
     env_file:
       - ./.env
+    labels:
+      group: universal
 
   # Shared MySQL database for all Ghost instances
   mysql:
@@ -40,6 +42,8 @@ services:
     networks:
       - ghost_network
     command: --default-authentication-plugin=mysql_native_password
+    labels:
+      group: universal
 
   # Redis cache (optional, for performance)
   redis:
@@ -50,6 +54,8 @@ services:
       - ghost_network
     volumes:
       - redis_data:/data
+    labels:
+      group: universal
       
   # Static site generator service with Git support
   static-generator:
@@ -78,6 +84,8 @@ services:
         # Keep container running
         tail -f /dev/null
       '
+    labels:
+      group: universal
     
   # Webhook receiver for triggering static site generations
   webhook-receiver:
@@ -102,6 +110,8 @@ services:
       - PORT=9000
     env_file:
       - ./.env
+    labels:
+      group: universal
 
   watchtower:
     image: containrrr/watchtower
@@ -114,6 +124,8 @@ services:
     restart: unless-stopped
     env_file:
       - ./.env
+    labels:
+      group: universal
 
 volumes:
   caddy_data:
