@@ -88,6 +88,8 @@ services:
       '
     labels:
       group: universal
+      # The image for this isn't yet published on docker hub, so don't try and update it
+      com.centurylinklabs.watchtower.enable: false
     
   # Webhook receiver for triggering static site generations
   webhook-receiver:
