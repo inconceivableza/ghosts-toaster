@@ -11,7 +11,7 @@ services:
       database__connection__user: ${DB_USER}
       database__connection__password: ${DB_PASSWORD}
       database__connection__database: ${DB_NAME}
-      url: https://${SITE_DOMAIN}
+      url: https://${GHOST_PREFIX}.${SITE_DOMAIN}
       NODE_ENV: production
       # mail__ configuration is defined in global environment
     volumes:
