@@ -22,15 +22,28 @@ echo "Updating Git repository for $SITE_DOMAIN..."
 cd "$SITE_DIR" || exit 1
 
 function show_git_instructions() {
+    ssh_key_file=/root/.ssh/id_ed25519-$GIT_REPO_PREFIX$SITE_DOMAIN
+    [[ -f $ssh_key_file.pub ]] || {
+        echo "Generating new ssh key for $SITE_DOMAIN...
+        ssh-keygen -t ed25519 -f $ssh_key_file -N ''
+        echo "Adjusting ssh config for git for $SITE_DOMAIN...
+        (
+            echo "Host github.com-$GIT_REPO_PREFIX$SITE_DOMAIN"
+            echo "    Hostname github.com"
+            echo "    IdentityFile=$ssh_key_file"
+            echo ""
+        ) >> /root/.ssh/config
+    }
     echo "Please add the following ssh key as a deploy key for this repository, with write permissions:"
     echo
-    cat /root/.ssh/id_ed25519.pub
+
+    cat $ssh_key_file.pub
     echo
     echo "This can be done at https://github.com/$GIT_OWNER_ID/$GIT_REPO_PREFIX$SITE_DOMAIN/settings/keys"
     echo
     echo "Then please set up the remote, using docker compose exec static-generator bash:"
     echo "  cd $SITE_DIR"
-    echo "  git remote add origin git@github.com:$GIT_OWNER_ID/$GIT_REPO_PREFIX$SITE_DOMAIN.git"
+    echo "  git remote add origin git@github.com-$GIT_REPO_PREFIX$SITE_DOMAIN:$GIT_OWNER_ID/$GIT_REPO_PREFIX$SITE_DOMAIN.git"
     echo "  git push -u origin main"
     echo "This may ask you to confirm the remote github key"
 }

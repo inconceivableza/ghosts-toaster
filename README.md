@@ -103,9 +103,10 @@ To set up GitHub integration for your static site:
 1. Create a new repository on GitHub named after your domain
 2. Follow the instructions provided after site creation to configure the remote
    - This uses a [deploy key](https://docs.github.com/authentication/connecting-to-github-with-ssh/managing-deploy-keys#deploy-keys)
-     rather than using your personal SSH keys to facilitate pushing commits
-     An alternative is to set up a
-     [GitHub App](https://docs.github.com/apps/overview).
+     rather than using your personal SSH keys to facilitate pushing commits.  Each repository requires a unique deploy key,
+     so custom ssh config is used to associate fictional hostnames with the ssh keys.
+   - An alternative is to set up a
+     [GitHub App](https://docs.github.com/apps/overview), but that is not directly supported by this tool.
 3. Consider setting up GitHub Pages, Netlify or CloudFlare to host your static site directly from the repository
 
 ## Using Your Sites
