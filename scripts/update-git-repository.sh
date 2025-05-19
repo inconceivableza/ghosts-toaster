@@ -24,9 +24,9 @@ cd "$SITE_DIR" || exit 1
 function show_git_instructions() {
     ssh_key_file=/root/.ssh/id_ed25519-$GIT_REPO_PREFIX$SITE_DOMAIN
     [[ -f $ssh_key_file.pub ]] || {
-        echo "Generating new ssh key for $SITE_DOMAIN...
+        echo "Generating new ssh key for $SITE_DOMAIN..."
         ssh-keygen -t ed25519 -f $ssh_key_file -N ''
-        echo "Adjusting ssh config for git for $SITE_DOMAIN...
+        echo "Adjusting ssh config for git for $SITE_DOMAIN..."
         (
             echo "Host github.com-$GIT_REPO_PREFIX$SITE_DOMAIN"
             echo "    Hostname github.com"
