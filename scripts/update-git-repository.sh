@@ -26,6 +26,8 @@ function show_git_instructions() {
     [[ -f $ssh_key_file.pub ]] || {
         echo "Generating new ssh key for $SITE_DOMAIN..."
         ssh-keygen -t ed25519 -f $ssh_key_file -N ''
+    }
+    [[ -f /root/.ssh/config && grep github.com-$GIT_REPO_PREFIX$SITE_DOMAIN /root/.ssh/config > /dev/null ]] && {
         echo "Adjusting ssh config for git for $SITE_DOMAIN..."
         (
             echo "Host github.com-$GIT_REPO_PREFIX$SITE_DOMAIN"
