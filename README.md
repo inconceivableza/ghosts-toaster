@@ -45,6 +45,23 @@ This guide will walk you through setting up and managing multiple Ghost websites
 
 ## Adding a New Site
 
+### DNS Setup
+
+Before adding a site, set up the DNS for the site domain.
+This will prevent delays with Caddy using [Let's Encrypt](https://letsencrypt.org/) to issue SSL certificates
+that will happen if you only set it up later.
+
+The `GHOST_PREFIX` and `STATIC_PREFIX` subdomains should be set up in your DNS records
+to point to the ghosts-toaster server (usually with a `CNAME` alias record),
+so that Caddy can successfully issue certificates for them.
+
+You may well decide to serve up the static site from a different provider,
+under a different subdomain. For example, you could set `STATIC_PREFIX` to `toast`
+so that you can test the static site hosted by ghosts-toaster,
+but set up the DNS for `www.${SITE_DOMAIN}` and `${SITE_DOMAIN}` to serve them from a CDN.
+
+### Add the site to ghosts-toaster
+
 Use the provided script:
 
 ```bash
@@ -86,10 +103,30 @@ To set up GitHub integration for your static site:
 1. Create a new repository on GitHub named after your domain
 2. Follow the instructions provided after site creation to configure the remote
    - This uses a [deploy key](https://docs.github.com/authentication/connecting-to-github-with-ssh/managing-deploy-keys#deploy-keys)
-     rather than using your personal SSH keys to facilitate pushing commits
-     An alternative is to set up a
-     [GitHub App](https://docs.github.com/apps/overview).
+     rather than using your personal SSH keys to facilitate pushing commits.  Each repository requires a unique deploy key,
+     so custom ssh config is used to associate fictional hostnames with the ssh keys.
+   - An alternative is to set up a
+     [GitHub App](https://docs.github.com/apps/overview), but that is not directly supported by this tool.
 3. Consider setting up GitHub Pages, Netlify or CloudFlare to host your static site directly from the repository
+
+## Using Your Sites
+
+Where ghosts-toaster serves your sites will depend on your settings for
+`GHOST_PREFIX` and `STATIC_PREFIX`. The defaults are `ghost` and `www`.
+(See the above information on setting up DNS).
+
+* To access the dynamic ghost site, including the Ghost management interface, go to
+  `https://${GHOST_PREFIX}.${SITE_DOMAIN}`,
+  for example `https://ghost.example.com/` for the home page,
+  or `https://ghost.example.com/ghost/` for the management interface.
+* To access the static version of your site, go to
+  `https://${STATIC_PREFIX}.${SITE_DOMAIN}`, for example `https://www.example.com/`.
+  Note that the `/ghost/` management interface is not present on this version.
+* By default, the plain domain name at `https://${SITE_DOMAIN}/` will serve
+  the Ghost management interface under `/ghost/` but otherwise serve the static site.
+
+Note that Ghost itself will be configured to have the dynamic ghost site url,
+so that it doesn't try and serve images etc from the other site.
 
 ## Managing Your Sites
 
@@ -118,6 +155,7 @@ Use the provided backup script:
 ```
 
 This will create backups of all MySQL databases and Ghost content volumes in a dated directory under `backups/`.
+Off-site backup is not managed by this system, but could be added to it.
 
 To automate backups, set up a cron job:
 ```bash

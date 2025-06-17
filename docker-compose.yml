@@ -76,8 +76,6 @@ services:
       - webhook_network
     command: >
       sh -c '
-        # Initialize ssh keys
-        [ -f /root/.ssh/id_ed25519 ] || ssh-keygen -N "" -t ed25519 -C "${SSH_KEY_NAME:-static-generator@ghosts-toaster.local}" -f /root/.ssh/id_ed25519
         echo "Static site generator container started" && 
         # Set git configuration
         git config --global user.email "${GIT_COMMITTER_EMAIL:-static-generator@ghosts-toaster.local}" &&
@@ -88,6 +86,8 @@ services:
       '
     labels:
       group: universal
+      # The image for this isn't yet published on docker hub, so don't try and update it
+      com.centurylinklabs.watchtower.enable: false
     
   # Webhook receiver for triggering static site generations
   webhook-receiver:
