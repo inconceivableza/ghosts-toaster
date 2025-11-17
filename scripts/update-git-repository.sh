@@ -22,19 +22,19 @@ echo "Updating Git repository for $SITE_DOMAIN..."
 cd "$SITE_DIR" || exit 1
 
 function check_setup_git_ssh() {
-    ssh_key_file=/root/.ssh/id_ed25519-$GIT_REPO_PREFIX$SITE_DOMAIN
+    ssh_key_file=~/.ssh/id_ed25519-$GIT_REPO_PREFIX$SITE_DOMAIN
     [[ -f $ssh_key_file.pub ]] || {
         echo "Generating new ssh key for $SITE_DOMAIN..."
         ssh-keygen -t ed25519 -f $ssh_key_file -N ''
     }
-    grep "github.com-$GIT_REPO_PREFIX$SITE_DOMAIN" /root/.ssh/config > /dev/null 2>&1 || {
+    grep "github.com-$GIT_REPO_PREFIX$SITE_DOMAIN" ~/.ssh/config > /dev/null 2>&1 || {
         echo "Adjusting ssh config for git for $SITE_DOMAIN..."
         (
             echo "Host github.com-$GIT_REPO_PREFIX$SITE_DOMAIN"
             echo "    Hostname github.com"
             echo "    IdentityFile=$ssh_key_file"
             echo ""
-        ) >> /root/.ssh/config
+        ) >> ~/.ssh/config
     }
     git remote -v | grep -q origin || {
         echo "Setting up git remote for $SITE_DOMAIN..."
