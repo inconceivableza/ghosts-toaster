@@ -8,6 +8,8 @@ const crypto = require('crypto');
 const app = express();
 const port = process.env.PORT || 9000;
 const webhookSecret = process.env.WEBHOOK_SECRET;
+const ghostPrefix = process.env.GHOST_PREFIX || '';
+const staticPrefix = process.env.STATIC_PREFIX || '';
 
 if (!webhookSecret) throw Error("Please define WEBHOOK_SECRET to a secure key");
 
@@ -55,8 +57,9 @@ function generateStaticSite(siteName, siteDomain) {
         return reject(new Error(`Error creating output directory: ${err.message}`));
       }
     }
+    const ghostDomain = `${ghostPrefix}${ghostPrefix ? '.' : ''}${siteName}`
     
-    const command = `docker exec static-generator gssg --domain http://ghost_${siteName}:2368 --productionDomain https://${siteDomain} --dest ${outputDir} --avoid-https --use-wpull`;
+    const command = `docker exec static-generator gssg --domain https://${ghostDomain} --productionDomain https://${siteDomain} --dest ${outputDir} --avoid-https --use-wpull`;
     
     console.log(`Executing command: ${command}`);
     
@@ -68,37 +71,51 @@ function generateStaticSite(siteName, siteDomain) {
         return reject(new Error(`Error generating static site: ${error.message}`));
       }
       
-      console.log(`Static site for ${siteName} generated successfully`);
+      console.log(`Static site for ${ghostDomain} generated successfully`);
       console.log(stdout);
       
-      // Update git repository
-      const gitCommand = `docker exec static-generator /scripts/update-git-repository.sh ${siteDomain}`;
-      console.log(`Executing git update command: ${gitCommand}`);
+      // Patch downloaded files
+      const patchCommand = `docker exec static-generator /scripts/patch-domains.sh ${siteName}`;
+      console.log(`Executing patch domains command: ${patchCommand}`);
       
-      exec(gitCommand, (gitError, gitStdout, gitStderr) => {
-        if (gitError) {
-          console.error(`Error updating git repository for ${siteName}:`, gitError);
-          console.error(gitStderr);
+      exec(patchCommand, (patchError, patchStdout, patchStderr) => {
+        if (patchError) {
+          console.error(`Error patching git repository for ${siteName}:`, patchError);
+          console.error(patchStderr);
           // We don't reject here because the site was generated successfully
         } else {
-          console.log(`Git repository for ${siteName} updated successfully`);
-          console.log(gitStdout);
+          console.log(`Git repository for ${siteName} patched successfully`);
+          console.log(patchStdout);
         }
+        // Update git repository
+        const gitCommand = `docker exec static-generator /scripts/update-git-repository.sh ${siteDomain}`;
+        console.log(`Executing git update command: ${gitCommand}`);
         
-        // Remove from running
-        runningGenerations.delete(siteName);
-        
-        // Check if there's a pending request for this site
-        if (pendingGenerations.has(siteName)) {
-          console.log(`Found pending generation request for ${siteName}, triggering now`);
-          pendingGenerations.delete(siteName);
-          // Start a new generation
-          generateStaticSite(siteName, siteDomain).catch(err => {
-            console.error(`Error in follow-up generation for ${siteName}:`, err);
-          });
-        }
-        
-        resolve(true);
+        exec(gitCommand, (gitError, gitStdout, gitStderr) => {
+          if (gitError) {
+            console.error(`Error updating git repository for ${siteName}:`, gitError);
+            console.error(gitStderr);
+            // We don't reject here because the site was generated successfully
+          } else {
+            console.log(`Git repository for ${siteName} updated successfully`);
+            console.log(gitStdout);
+          }
+          
+          // Remove from running
+          runningGenerations.delete(siteName);
+          
+          // Check if there's a pending request for this site
+          if (pendingGenerations.has(siteName)) {
+            console.log(`Found pending generation request for ${siteName}, triggering now`);
+            pendingGenerations.delete(siteName);
+            // Start a new generation
+            generateStaticSite(siteName, siteDomain).catch(err => {
+              console.error(`Error in follow-up generation for ${siteName}:`, err);
+            });
+          }
+          
+          resolve(true);
+        });
       });
     });
   });
