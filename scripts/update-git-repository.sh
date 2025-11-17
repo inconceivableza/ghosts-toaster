@@ -87,7 +87,7 @@ else
     # Commit changes if there are any
     if git status --porcelain | grep -q .; then
         git commit -m "Update static site - $(date '+%Y-%m-%d %H:%M:%S')"
-        
+
         # Check if remote exists before pushing
         if git remote -v | grep -q origin; then
             echo "Pushing changes to remote repository..."
