@@ -10,6 +10,7 @@ const port = process.env.PORT || 9000;
 const webhookSecret = process.env.WEBHOOK_SECRET;
 const ghostPrefix = process.env.GHOST_PREFIX || '';
 const staticPrefix = process.env.STATIC_PREFIX || '';
+const staticUser = process.env.STATIC_USER || 'appuser';
 
 if (!webhookSecret) throw Error("Please define WEBHOOK_SECRET to a secure key");
 
@@ -59,7 +60,7 @@ function generateStaticSite(siteName, siteDomain) {
     }
     const ghostDomain = `${ghostPrefix}${ghostPrefix ? '.' : ''}${siteName}`
     
-    const command = `docker exec static-generator gssg --domain https://${ghostDomain} --productionDomain https://${siteDomain} --dest ${outputDir} --avoid-https --use-wpull`;
+    const command = `docker exec -u ${staticUser} static-generator gssg --domain https://${ghostDomain} --productionDomain https://${siteDomain} --dest ${outputDir} --avoid-https --use-wpull`;
     
     console.log(`Executing command: ${command}`);
     
@@ -75,7 +76,7 @@ function generateStaticSite(siteName, siteDomain) {
       console.log(stdout);
       
       // Patch downloaded files
-      const patchCommand = `docker exec static-generator /scripts/patch-domains.sh ${siteName}`;
+      const patchCommand = `docker exec -u ${staticUser} static-generator /scripts/patch-domains.sh ${siteDomain}`;
       console.log(`Executing patch domains command: ${patchCommand}`);
       
       exec(patchCommand, (patchError, patchStdout, patchStderr) => {
@@ -88,7 +89,7 @@ function generateStaticSite(siteName, siteDomain) {
           console.log(patchStdout);
         }
         // Update git repository
-        const gitCommand = `docker exec static-generator /scripts/update-git-repository.sh ${siteDomain}`;
+        const gitCommand = `docker exec -u ${staticUser} static-generator /scripts/update-git-repository.sh ${siteDomain}`;
         console.log(`Executing git update command: ${gitCommand}`);
         
         exec(gitCommand, (gitError, gitStdout, gitStderr) => {

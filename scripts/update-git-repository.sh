@@ -51,7 +51,7 @@ function show_git_instructions() {
     echo
     echo "This can be done at https://github.com/$GIT_OWNER_ID/$GIT_REPO_PREFIX$SITE_DOMAIN/settings/keys"
     echo
-    echo "Then please complete pushing to the remote, using docker compose exec static-generator bash:"
+    echo "Then please complete pushing to the remote, using docker compose exec -u $STATIC_USER static-generator bash:"
     echo "  cd $SITE_DIR"
     echo "  git push -u origin main"
     echo "This may ask you to confirm the remote github key"

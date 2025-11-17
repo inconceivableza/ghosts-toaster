@@ -16,8 +16,8 @@ fi
 
 # Function to patch domain names for a Ghost mirror directory
 patch_static_site() {
-    local site_name=$1
-    local env_file="$SITES_DIR/$site_name/site.env"
+    local site_domain=$1
+    local env_file="$SITES_DIR/$site_domain/site.env"
     
     # Check if site.env file exists
     if [ ! -f "$env_file" ]; then
@@ -30,12 +30,9 @@ patch_static_site() {
     source "$env_file"
     set +a
     
-    local site_domain="$SITE_DOMAIN"
-    local site_name="$SITE_NAME"
-    local local_output_dir="$STATIC_DIR/$site_domain"
-    local sg_output_dir="$SG_STATIC_DIR/$site_domain"
+    local local_output_dir="$STATIC_DIR/$SITE_DOMAIN"
     
-    echo "Patching static site for $site_domain..."
+    echo "Patching static site for $SITE_DOMAIN..."
 
     # this should support https:// http:// "// '// or ref= as prefixes that if matched with the domain name should be adjusted
     GHOST_DOMAIN_SEARCH="${GHOST_PREFIX}${GHOST_PREFIX:+[.]}${SITE_DOMAIN//./[.]}"

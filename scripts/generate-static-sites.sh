@@ -52,7 +52,7 @@ generate_static_site() {
     docker exec -u "${STATIC_USER:=appuser}" static-generator gssg --domain "https://$GHOST_DOMAIN" --productionDomain "https://$SITE_DOMAIN" --dest "$sg_output_dir" --avoid-https
     
     echo "Static site for $site_domain generated in $local_output_dir"
-    patch_static_site "$site_name"
+    patch_static_site "$site_domain"
 
     # Update Git repository for the static site
     if [ -d "$local_output_dir" ]; then

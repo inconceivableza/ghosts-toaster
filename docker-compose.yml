@@ -70,6 +70,7 @@ services:
     volumes:
       - ./static:/static:rw
       - ./scripts:/scripts
+      - ./sites:/sites:ro
       - ./ssh:/home/${STATIC_USER-appuser}/.ssh:rw
     networks:
       - ghost_network
