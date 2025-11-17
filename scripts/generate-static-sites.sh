@@ -1,12 +1,13 @@
 #!/bin/bash
 # Script to generate static versions of Ghost sites
 
-SITES_DIR="./sites"
-STATIC_DIR="./static"
-SG_STATIC_DIR="/static"
-GLOBAL_ENV_FILE="./.env"
-
 script_dir="$(cd "$(dirname "$0")"; pwd)"
+root_dir="$(cd "$(dirname "$script_dir")"; pwd)"
+
+SITES_DIR="$root_dir/sites"
+STATIC_DIR="$root_dir/static"
+SG_STATIC_DIR="/static"
+GLOBAL_ENV_FILE="$root_dir/.env"
 
 # Load global environment variables
 if [ -f "$GLOBAL_ENV_FILE" ]; then
@@ -47,10 +48,11 @@ generate_static_site() {
     
     # Use docker exec to run the static site generator in the container
     echo "Running gssg"
-    docker exec -u "${STATIC_USER:=appuser}" static-generator gssg --domain "http://ghost.$SITE_DOMAIN" --productionDomain "https://$SITE_DOMAIN" --dest "$sg_output_dir" --avoid-https
+    GHOST_DOMAIN=${GHOST_PREFIX}${GHOST_PREFIX:+.}$SITE_DOMAIN
+    docker exec -u "${STATIC_USER:=appuser}" static-generator gssg --domain "https://$GHOST_DOMAIN" --productionDomain "https://$SITE_DOMAIN" --dest "$sg_output_dir" --avoid-https
     
     echo "Static site for $site_domain generated in $local_output_dir"
-    patch_static_site "$site_dir"
+    patch_static_site "$site_name"
 
     # Update Git repository for the static site
     if [ -d "$local_output_dir" ]; then
