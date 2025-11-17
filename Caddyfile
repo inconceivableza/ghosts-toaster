@@ -12,7 +12,17 @@
 # Snippet for static site configuration
 (static_site) {
 	root * /var/www/static/{args[1]}
-	file_server
+	# override image formats that ghost serves unusually
+	@image_format_override {
+		path_regexp /content/images/.*/format/(png|jpg)/.*
+	}
+	handle @image_format_override {
+		header Content-Type "image/{re.1}"
+		file_server
+	}
+	handle {
+		file_server
+	}
 	encode gzip
 }
 
