@@ -5,6 +5,7 @@ SITES_DIR="./sites"
 DOCKER_TEMPLATE_FILE="./site-template.yml"
 CADDY_TEMPLATE_FILE="./site-template-Caddyfile"
 GLOBAL_ENV_FILE="./.env"
+SECRETS_FILE="./.secrets"
 
 # Check if global environment file exists, create from example if needed
 if [ ! -f "$GLOBAL_ENV_FILE" ] && [ -f "$GLOBAL_ENV_FILE.example" ]; then
@@ -12,9 +13,13 @@ if [ ! -f "$GLOBAL_ENV_FILE" ] && [ -f "$GLOBAL_ENV_FILE.example" ]; then
     exit 1
 fi
 
+# Ensure secrets file exists with auto-generated values
+./scripts/init-secrets.sh
+
 # Load global environment to get prefixes
 set -a
 source "$GLOBAL_ENV_FILE"
+source "$SECRETS_FILE"
 set +a
 GHOST_PREFIX=${GHOST_PREFIX:-ghost}
 STATIC_PREFIX=${STATIC_PREFIX:-www}

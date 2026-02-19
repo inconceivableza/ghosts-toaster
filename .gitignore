@@ -3,6 +3,7 @@ include-sites.yml
 
 # Environment files
 *.env
+.secrets
 
 # Static site output
 static/

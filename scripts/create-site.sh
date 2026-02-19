@@ -66,13 +66,9 @@ echo "2. Wait for the service to initialize"
 echo "3. Your static site will be generated automatically"
 echo ""
 
-# Get the webhook secret from the global environment file
-WEBHOOK_SECRET=$(grep WEBHOOK_SECRET $GLOBAL_ENV_FILE | cut -d= -f2)
-if [ -z "$WEBHOOK_SECRET" ]; then
-    echo "ERROR: No webhook secret found in $GLOBAL_ENV_FILE!." >&2
-    echo "Please update the WEBHOOK_SECRET in $GLOBAL_ENV_FILE for security." >&2
-    exit 1
-fi
+# Ensure secrets exist and load them
+./scripts/init-secrets.sh
+WEBHOOK_SECRET=$(grep WEBHOOK_SECRET .secrets | cut -d= -f2)
 
 echo "===== Setting up webhook for automatic static site generation ====="
 echo "After your Ghost site is running, set up the webhook with these steps:"

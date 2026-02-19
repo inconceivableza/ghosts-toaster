@@ -1,4 +1,5 @@
 #!/bin/bash
 scripts_dir="$(cd "`dirname "$0"`" ; pwd)"
 . $scripts_dir/../.env
+. $scripts_dir/../.secrets
 docker exec mysql mysql -uroot -p"$MYSQL_ROOT_PASSWORD" "$@"
