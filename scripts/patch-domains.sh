@@ -9,9 +9,8 @@
 # in .env. When enabled, it is sourced by generate-static-sites.sh and patch_static_site
 # is called after each gssg run to catch any source-domain refs that gssg may have missed.
 #
-# Note: this script replaces ghost.$DOMAIN with toast.$DOMAIN (STATIC_PREFIX.$DOMAIN),
-# which differs from gssg's replacement target of $DOMAIN (PRODUCTION_DOMAIN). It is
-# therefore only a partial substitute and the gssg --productionDomain flag is preferred.
+# This script replaces ghost.$DOMAIN (GHOST_PREFIX.$DOMAIN) with $DOMAIN (SITE_DOMAIN),
+# matching the same source→production mapping used by gssg's --productionDomain flag.
 
 script_dir="$(cd "$(dirname "$0")"; pwd)"
 root_dir="$(cd "$(dirname "$script_dir")"; pwd)"
@@ -46,10 +45,10 @@ patch_static_site() {
     
     echo "Patching static site for $SITE_DOMAIN..."
 
-    # this should support https:// http:// "// '// or ref= as prefixes that if matched with the domain name should be adjusted
+    # Matches https:// http:// "// '// or ref= prefixes followed by the ghost source domain,
+    # and replaces with the production domain (SITE_DOMAIN), mirroring gssg --productionDomain.
     GHOST_DOMAIN_SEARCH="${GHOST_PREFIX}${GHOST_PREFIX:+[.]}${SITE_DOMAIN//./[.]}"
-    STATIC_DOMAIN_REPLACE="${STATIC_PREFIX}${STATIC_PREFIX:+.}${SITE_DOMAIN}"
-    find "$local_output_dir" -type f -exec sed -i 's#\(https://\|http://\|["'"'"']//\|ref=\)'"$GHOST_DOMAIN_SEARCH"'#\1'"$STATIC_DOMAIN_REPLACE#g" "{}" +
+    find "$local_output_dir" -type f -exec sed -i 's#\(https://\|http://\|["'"'"']//\|ref=\)'"$GHOST_DOMAIN_SEARCH"'#\1'"$SITE_DOMAIN"'#g' "{}" +
 }
 
 # this can be run as an executable script, or sourced so the function can be used
