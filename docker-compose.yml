@@ -70,10 +70,16 @@ services:
     volumes:
       - ./static:/static:rw
       - ./scripts:/scripts
-      - ./ssh:/root/.ssh:rw
+      - ./sites:/sites:ro
+      - ./ssh:/home/${STATIC_USER-appuser}/.ssh:rw
     networks:
       - ghost_network
       - webhook_network
+    environment:
+      - STATIC_UID=${STATIC_UID}
+      - STATIC_GID=${STATIC_GID}
+      - STATIC_USER=${STATIC_USER}
+      - STATIC_GROUP=${STATIC_GROUP}
     command: >
       sh -c '
         echo "Static site generator container started" && 

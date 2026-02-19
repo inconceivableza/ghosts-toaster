@@ -98,7 +98,7 @@ echo "After the static site is generated, set up the remote repository with thes
 echo ""
 echo "1. Create a new repository on GitHub named '$SITE_DOMAIN'"
 echo "2. Run the following commands to configure the remote from the static generator container:"
-echo "   docker compose exec static-generator bash /scripts/update-git-repository.sh $SITE_DOMAIN"
+echo "   docker compose exec -u $STATIC_USER static-generator bash /scripts/update-git-repository.sh $SITE_DOMAIN"
 echo ""
 echo "After this setup, all static site updates will be automatically committed and pushed to GitHub."
 echo ""

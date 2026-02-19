@@ -22,19 +22,19 @@ echo "Updating Git repository for $SITE_DOMAIN..."
 cd "$SITE_DIR" || exit 1
 
 function check_setup_git_ssh() {
-    ssh_key_file=/root/.ssh/id_ed25519-$GIT_REPO_PREFIX$SITE_DOMAIN
+    ssh_key_file=~/.ssh/id_ed25519-$GIT_REPO_PREFIX$SITE_DOMAIN
     [[ -f $ssh_key_file.pub ]] || {
         echo "Generating new ssh key for $SITE_DOMAIN..."
         ssh-keygen -t ed25519 -f $ssh_key_file -N ''
     }
-    grep "github.com-$GIT_REPO_PREFIX$SITE_DOMAIN" /root/.ssh/config > /dev/null 2>&1 || {
+    grep "github.com-$GIT_REPO_PREFIX$SITE_DOMAIN" ~/.ssh/config > /dev/null 2>&1 || {
         echo "Adjusting ssh config for git for $SITE_DOMAIN..."
         (
             echo "Host github.com-$GIT_REPO_PREFIX$SITE_DOMAIN"
             echo "    Hostname github.com"
             echo "    IdentityFile=$ssh_key_file"
             echo ""
-        ) >> /root/.ssh/config
+        ) >> ~/.ssh/config
     }
     git remote -v | grep -q origin || {
         echo "Setting up git remote for $SITE_DOMAIN..."
@@ -51,7 +51,7 @@ function show_git_instructions() {
     echo
     echo "This can be done at https://github.com/$GIT_OWNER_ID/$GIT_REPO_PREFIX$SITE_DOMAIN/settings/keys"
     echo
-    echo "Then please complete pushing to the remote, using docker compose exec static-generator bash:"
+    echo "Then please complete pushing to the remote, using docker compose exec -u $STATIC_USER static-generator bash:"
     echo "  cd $SITE_DIR"
     echo "  git push -u origin main"
     echo "This may ask you to confirm the remote github key"
@@ -87,7 +87,7 @@ else
     # Commit changes if there are any
     if git status --porcelain | grep -q .; then
         git commit -m "Update static site - $(date '+%Y-%m-%d %H:%M:%S')"
-        
+
         # Check if remote exists before pushing
         if git remote -v | grep -q origin; then
             echo "Pushing changes to remote repository..."

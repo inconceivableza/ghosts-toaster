@@ -13,7 +13,9 @@ if [ ! -f "$GLOBAL_ENV_FILE" ] && [ -f "$GLOBAL_ENV_FILE.example" ]; then
 fi
 
 # Load global environment to get prefixes
+set -a
 source "$GLOBAL_ENV_FILE"
+set +a
 GHOST_PREFIX=${GHOST_PREFIX:-ghost}
 STATIC_PREFIX=${STATIC_PREFIX:-www}
 
@@ -37,7 +39,7 @@ generate_site_config() {
     set +a
     echo "Generating config for $site_domain..."
     
-    SITE_ENV_FILE="$env_file" envsubst < "$DOCKER_TEMPLATE_FILE" > "$docker_compose_file" '$SITE_ENV_FILE $SITE_NAME $SITE_DOMAIN'
+    SITE_ENV_FILE="$env_file" envsubst < "$DOCKER_TEMPLATE_FILE" > "$docker_compose_file" '$SITE_ENV_FILE $SITE_NAME $SITE_DOMAIN $GHOST_PREFIX'
     echo "Generated $docker_compose_file"
 
     envsubst < "$CADDY_TEMPLATE_FILE" '$SITE_NAME $SITE_DOMAIN' | grep -v "# In this template" > "$caddy_file" 

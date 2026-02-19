@@ -1,15 +1,20 @@
 #!/bin/bash
 # Script to generate static versions of Ghost sites
 
-SITES_DIR="./sites"
-STATIC_DIR="./static"
+script_dir="$(cd "$(dirname "$0")"; pwd)"
+root_dir="$(cd "$(dirname "$script_dir")"; pwd)"
+
+SITES_DIR="$root_dir/sites"
+STATIC_DIR="$root_dir/static"
 SG_STATIC_DIR="/static"
-GLOBAL_ENV_FILE="./.env"
+GLOBAL_ENV_FILE="$root_dir/.env"
 
 # Load global environment variables
 if [ -f "$GLOBAL_ENV_FILE" ]; then
     source "$GLOBAL_ENV_FILE"
 fi
+
+. $script_dir/patch-domains.sh
 
 # Make sure the static directory exists
 mkdir -p "$STATIC_DIR"
@@ -38,17 +43,22 @@ generate_static_site() {
     echo "Generating static site for $site_domain..."
     
     # Create output directory if it doesn't exist
-    docker exec static-generator mkdir -p "$sg_output_dir"
+    echo "Creating $sg_output_dir"
+    docker exec -u "${STATIC_USER:=appuser}" static-generator mkdir -p "$sg_output_dir"
     
     # Use docker exec to run the static site generator in the container
-    docker exec static-generator gssg --domain "http://ghost_${site_name}:2368" --productionDomain "https://$SITE_DOMAIN" --dest "$sg_output_dir" --avoid-https
+    echo "Running gssg"
+    GHOST_DOMAIN=${GHOST_PREFIX}${GHOST_PREFIX:+.}$SITE_DOMAIN
+    docker exec -u "${STATIC_USER:=appuser}" static-generator gssg --domain "https://$GHOST_DOMAIN" --productionDomain "https://$SITE_DOMAIN" --dest "$sg_output_dir" --avoid-https
     
     echo "Static site for $site_domain generated in $local_output_dir"
-    
+    patch_static_site "$site_domain"
+
     # Update Git repository for the static site
     if [ -d "$local_output_dir" ]; then
-        echo "Updating Git repository for $site_domain..."
-        ./scripts/update-git-repository.sh "$site_domain"
+        echo "Using static-generator container to update Git repository for $site_domain..."
+        docker exec -t -u "${STATIC_USER:=appuser}" static-generator /scripts/update-git-repository.sh "$site_domain"
+        echo done
     fi
 }
 
@@ -67,6 +77,3 @@ else
 fi
 
 echo "Static site generation complete."
-
-# Set appropriate permissions for the static directory
-chmod -R 755 "$STATIC_DIR"

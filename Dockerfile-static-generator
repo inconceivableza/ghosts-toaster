@@ -1,6 +1,11 @@
 FROM alpine:latest
 
-RUN apk add --no-cache git nodejs npm ca-certificates wget openssh-client
+RUN apk add --no-cache git nodejs npm ca-certificates wget openssh-client su-exec
 RUN apk add --no-cache bash python3 py3-pip py3-pkgconfig python3-dev gcc musl-dev linux-headers pkgconfig libxml2-dev libxslt-dev
 RUN pip install --root-user-action=ignore --break-system-packages --no-binary lxml git+https://github.com/ArchiveTeam/ludios_wpull@5.0.3
 RUN npm install -g github:inconceivableza/ghost-static-site-generator
+
+COPY scripts/static-generator-entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+
