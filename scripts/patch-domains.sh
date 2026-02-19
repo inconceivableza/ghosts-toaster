@@ -5,9 +5,9 @@
 # replaceUrlHelper already replaces all source (ghost.$DOMAIN) references with the
 # production domain when --productionDomain is passed.
 #
-# Re-enable this script (by uncommenting its call in generate-static-sites.sh) if:
-#   - gssg's domain replacement stops working (e.g. a regression in replaceUrlHelper)
-#   - You need a quick manual fix after a failed generation run
+# To enable this script as a post-generation safety net, set ENABLE_POST_PATCH_DOMAINS=1
+# in .env. When enabled, it is sourced by generate-static-sites.sh and patch_static_site
+# is called after each gssg run to catch any source-domain refs that gssg may have missed.
 #
 # Note: this script replaces ghost.$DOMAIN with toast.$DOMAIN (STATIC_PREFIX.$DOMAIN),
 # which differs from gssg's replacement target of $DOMAIN (PRODUCTION_DOMAIN). It is
