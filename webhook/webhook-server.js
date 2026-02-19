@@ -48,10 +48,11 @@ function generateStaticSite(siteName, siteDomain) {
     
     const outputDir = `/static/${siteDomain}`;
     
-    // Create output directory if it doesn't exist
+    // Create output directory if it doesn't exist, owned by the static user
     if (!fs.existsSync(outputDir)) {
       try {
         fs.mkdirSync(outputDir, { recursive: true });
+        fs.chownSync(outputDir, parseInt(process.env.STATIC_UID || '1000'), parseInt(process.env.STATIC_GID || '100'));
       } catch (err) {
         console.error(`Error creating directory ${outputDir}:`, err);
         runningGenerations.delete(siteName);
