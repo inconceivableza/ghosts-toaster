@@ -21,8 +21,13 @@ This guide will walk you through setting up and managing multiple Ghost websites
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/inconceivableza/ghosts-toaster.git
+   git clone --recurse-submodules https://github.com/inconceivableza/ghosts-toaster.git
    cd ghosts-toaster
+   ```
+
+   The `--recurse-submodules` flag is required to also check out `ghost-static-site-generator`, which is included as a submodule. If you cloned without it, run:
+   ```bash
+   git submodule update --init
    ```
 
 2. **Create environment file from example**:
@@ -229,7 +234,7 @@ if you want to use this, it must be [configured manually for each site in the Gh
 ## Security Considerations
 
 1. Use strong passwords (automatically handled by the site creation script)
-2. Set a secure webhook secret in `.env`
+2. The webhook secret and MySQL root password are auto-generated and stored in `.secrets`
 3. Keep all containers updated (watchtower is configured to do this)
 4. Regularly back up your data
 5. Use a firewall to restrict access to necessary ports only

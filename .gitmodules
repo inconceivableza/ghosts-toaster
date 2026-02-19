@@ -1,0 +1,3 @@
+[submodule "ghost-static-site-generator"]
+	path = ghost-static-site-generator
+	url = git@github.com:inconceivableza/ghost-static-site-generator.git
