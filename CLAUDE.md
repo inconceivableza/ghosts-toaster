@@ -12,7 +12,7 @@ Ghosts-Toaster is a multi-site Ghost CMS platform that automatically generates a
 - **Caddy**: Front-end web server with automatic SSL certificate generation
 - **MySQL**: Shared database for all Ghost instances
 - **Webhook System**: Node.js webhook receiver that triggers static site generation
-- **Static Generator**: Container running a fork of [ghost-static-site-generator](https://github.com/SimonMo88/ghost-static-site-generator/) (abbreviated as gssg) at [inconceivableza/gssg](https://github.com/inconceivableza/ghost-static-site-generator). This uses wpull rather than wget for site retrieval. The fork of gssg should be recorded as part of this project and worked on simulataneously; the code is checked out in `ghost-static-site-generator`.
+- **Static Generator**: Container running a fork of [ghost-static-site-generator](https://github.com/SimonMo88/ghost-static-site-generator/) (abbreviated as gssg) at [inconceivableza/ghosts-toaster-site-generator](https://github.com/inconceivableza/ghosts-toaster-site-generator). This uses wpull rather than wget for site retrieval. The fork of gssg should be recorded as part of this project and worked on simulataneously; the code is checked out in `ghosts-toaster-site-generator`.
 - **Watchtower**: Automatic container updates
 
 ## Key Commands

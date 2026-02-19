@@ -25,7 +25,7 @@ This guide will walk you through setting up and managing multiple Ghost websites
    cd ghosts-toaster
    ```
 
-   The `--recurse-submodules` flag is required to also check out `ghost-static-site-generator`, which is included as a submodule. If you cloned without it, run:
+   The `--recurse-submodules` flag is required to also check out `ghosts-toaster-site-generator`, which is included as a submodule. If you cloned without it, run:
    ```bash
    git submodule update --init
    ```
