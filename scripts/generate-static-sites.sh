@@ -14,7 +14,9 @@ if [ -f "$GLOBAL_ENV_FILE" ]; then
     source "$GLOBAL_ENV_FILE"
 fi
 
-. $script_dir/patch-domains.sh
+# patch-domains.sh is kept as a fallback in case gssg fails to replace source domain references
+# Uncomment if gssg domain replacement breaks to quickly restore static data, until gssg can be fixed.
+# . $script_dir/patch-domains.sh
 
 # Make sure the static directory exists
 mkdir -p "$STATIC_DIR"
@@ -52,7 +54,8 @@ generate_static_site() {
     docker exec -u "${STATIC_USER:=appuser}" static-generator gssg --domain "https://$GHOST_DOMAIN" --productionDomain "https://$SITE_DOMAIN" --dest "$sg_output_dir" --avoid-https
     
     echo "Static site for $site_domain generated in $local_output_dir"
-    patch_static_site "$site_domain"
+    # patch_static_site is a fallback for gssg domain replacement failures - see comment above.
+    # patch_static_site "$site_domain"
 
     # Update Git repository for the static site
     if [ -d "$local_output_dir" ]; then

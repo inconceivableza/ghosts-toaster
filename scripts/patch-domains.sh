@@ -1,5 +1,17 @@
 #!/bin/bash
-# Script patch domain names for a Ghost mirror directory
+# Fallback script to patch source domain names in a Ghost mirror directory.
+#
+# This script is normally NOT called during static site generation because gssg's
+# replaceUrlHelper already replaces all source (ghost.$DOMAIN) references with the
+# production domain when --productionDomain is passed.
+#
+# Re-enable this script (by uncommenting its call in generate-static-sites.sh) if:
+#   - gssg's domain replacement stops working (e.g. a regression in replaceUrlHelper)
+#   - You need a quick manual fix after a failed generation run
+#
+# Note: this script replaces ghost.$DOMAIN with toast.$DOMAIN (STATIC_PREFIX.$DOMAIN),
+# which differs from gssg's replacement target of $DOMAIN (PRODUCTION_DOMAIN). It is
+# therefore only a partial substitute and the gssg --productionDomain flag is preferred.
 
 script_dir="$(cd "$(dirname "$0")"; pwd)"
 root_dir="$(cd "$(dirname "$script_dir")"; pwd)"
