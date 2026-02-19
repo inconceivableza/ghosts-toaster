@@ -58,7 +58,7 @@ function generateStaticSite(siteName, siteDomain) {
         return reject(new Error(`Error creating output directory: ${err.message}`));
       }
     }
-    const ghostDomain = `${ghostPrefix}${ghostPrefix ? '.' : ''}${siteName}`
+    const ghostDomain = `${ghostPrefix}${ghostPrefix ? '.' : ''}${siteDomain}`
     
     const command = `docker exec -u ${staticUser} static-generator gssg --domain https://${ghostDomain} --productionDomain https://${siteDomain} --dest ${outputDir} --avoid-https --use-wpull`;
     
