@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+script_dir="$(cd "$(dirname "$0")" ; pwd)"
+site_domain="$1"
+[ "$site_domain" == "" ] && { echo usage $0 site_domain >&2 ; exit 1 ; }
+
+ghost_domain=ghost.$site_domain
+toast_domain=toast.$site_domain
+
+target_dir=$script_dir/website-mirrors/
+cd "$target_dir"
+
+for domain in $ghost_domain $toast_domain
+  do
+    [ -d "$domain" ] || { echo error finding mirror in $target_dir/$domain >&2 ; continue ; }
+    for f in found-$domain-{ghost,toast,plain} ; do [ -f $f ] && rm $f ; done
+    for f in $(grep --exclude "*.orig" -rle '\(http\|https\)://\(ghost[.]\|toast[.]\|\<\)'"$site_domain" "$domain/")
+      do
+        # output actual found links
+        grep -o '\(http\|https\)://ghost[.]'"$site_domain"'[a-zA-Z0-9._~:/?#@!$&()*+,;=%-]*' "$f" >> found-$domain-ghost
+        grep -o '\(http\|https\)://toast[.]'"$site_domain"'[a-zA-Z0-9._~:/?#@!$&()*+,;=%-]*' "$f" >> found-$domain-toast
+        grep -o '\(http\|https\)://'"$site_domain"'[a-zA-Z0-9._~:/?#@!$&()*+,;=%-]*' "$f" >> found-$domain-plain
+        ghost_links=$(grep -c '\(http\|https\)://ghost[.]'"$site_domain"'[a-zA-Z0-9._~:/?#@!$&()*+,;=%-]*' "$f")
+        toast_links=$(grep -c '\(http\|https\)://toast[.]'"$site_domain"'[a-zA-Z0-9._~:/?#@!$&()*+,;=%-]*' "$f")
+        plain_links=$(grep -c '\(http\|https\)://'"$site_domain"'[a-zA-Z0-9._~:/?#@!$&()*+,;=%-]*' "$f")
+        echo "$f",$ghost_links,$toast_links,$plain_links
+      done
+    for f in found-$domain-{ghost,toast,plain}
+      do
+         [ -f $f ] && contents="$(<$f)"
+         echo "$contents" | sort -u > "$f"
+      done
+  done
+

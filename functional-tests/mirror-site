@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+site_domain="$1"
+[ "$site_domain" == "" ] && { echo usage $0 site_domain >&2 ; exit 1 ; }
+
+ghost_domain=ghost.$site_domain
+toast_domain=toast.$site_domain
+
+target_dir=./website-mirrors/
+
+for domain in $ghost_domain $toast_domain
+  do
+    mkdir -p "$target_dir/"
+    rm -r "$target_dir/$domain"
+    wget -mpkKE -t 2 -P "$target_dir/" https://$domain
+  done
+
