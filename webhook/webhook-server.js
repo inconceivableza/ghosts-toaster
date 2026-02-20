@@ -61,7 +61,8 @@ function generateStaticSite(siteName, siteDomain) {
     }
     const ghostDomain = `${ghostPrefix}${ghostPrefix ? '.' : ''}${siteDomain}`
     
-    const command = `docker exec -u ${staticUser} static-generator gssg --domain https://${ghostDomain} --productionDomain https://${siteDomain} --dest ${outputDir} --avoid-https --use-wpull`;
+    const containerName = `ghost_${siteName}`;
+    const command = `docker exec -u ${staticUser} static-generator gssg --domain https://${ghostDomain} --productionDomain https://${siteDomain} --fetchDomain http://${containerName}:2368 --dest ${outputDir} --avoid-https --use-wpull`;
     
     console.log(`Executing command: ${command}`);
     

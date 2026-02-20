@@ -53,7 +53,8 @@ generate_static_site() {
     # Use docker exec to run the static site generator in the container
     echo "Running gssg"
     GHOST_DOMAIN=${GHOST_PREFIX}${GHOST_PREFIX:+.}$SITE_DOMAIN
-    docker exec -u "${STATIC_USER:=appuser}" static-generator gssg --domain "https://$GHOST_DOMAIN" --productionDomain "https://$SITE_DOMAIN" --dest "$sg_output_dir" --avoid-https
+    GHOST_CONTAINER="ghost_${site_name}"
+    docker exec -u "${STATIC_USER:=appuser}" static-generator gssg --domain "https://$GHOST_DOMAIN" --productionDomain "https://$SITE_DOMAIN" --fetchDomain "http://${GHOST_CONTAINER}:2368" --dest "$sg_output_dir" --avoid-https --use-wpull
     
     echo "Static site for $site_domain generated in $local_output_dir"
     if [ -n "$ENABLE_POST_PATCH_DOMAINS" ]; then
