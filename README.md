@@ -151,6 +151,26 @@ If needed, you can manually trigger static site generation:
 ./scripts/generate-static-sites.sh
 ```
 
+### Rebuilding the Static Generator from Local Source
+
+The static generator container normally installs `gssg` from the published GitHub package.
+When developing changes to `ghosts-toaster-site-generator/`, you can build from the local
+source instead:
+
+```bash
+./scripts/rebuild-static-generator-local.sh
+```
+
+This uses `Dockerfile-static-generator-local` and `docker-compose.local.yml`. The slow
+`apk`/`pip`/wpull layers are Docker-cached, so only the `npm install` step re-runs when
+source files change — subsequent rebuilds are fast.
+
+To revert to the published GitHub version:
+
+```bash
+docker compose build static-generator && docker compose up -d static-generator
+```
+
 ### Backing Up Your Sites
 
 Use the provided backup script:

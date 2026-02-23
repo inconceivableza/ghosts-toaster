@@ -1,0 +1,15 @@
+# Build static-generator from local ghosts-toaster-site-generator/ source
+# instead of the published GitHub package.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.local.yml build static-generator
+#   docker compose -f docker-compose.yml -f docker-compose.local.yml up -d static-generator
+#
+# The slow apk/pip/wpull layers are Docker-cached; only the npm install step
+# re-runs when source files change.
+
+services:
+  static-generator:
+    build:
+      context: .
+      dockerfile: Dockerfile-static-generator-local

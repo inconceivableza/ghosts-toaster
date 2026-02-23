@@ -1,0 +1,14 @@
+FROM alpine:latest
+
+RUN apk add --no-cache git nodejs npm ca-certificates wget openssh-client su-exec
+RUN apk add --no-cache bash python3 py3-pip py3-pkgconfig python3-dev gcc musl-dev linux-headers pkgconfig libxml2-dev libxslt-dev
+RUN pip install --root-user-action=ignore --break-system-packages --no-binary lxml git+https://github.com/ArchiveTeam/ludios_wpull@5.0.3
+
+# Install gssg from local source (ghosts-toaster-site-generator/).
+# npm pack produces a tarball; installing from that copies files rather than symlinking.
+COPY ghosts-toaster-site-generator /tmp/gssg
+RUN cd /tmp/gssg && npm install && npm pack && npm install -g ghosts-toaster-site-generator-*.tgz && rm -rf /tmp/gssg
+
+COPY scripts/static-generator-entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
