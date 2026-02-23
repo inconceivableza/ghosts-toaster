@@ -54,9 +54,9 @@ else
     ./scripts/generate-site-config.sh
 
     echo "Site $SITE_NAME at $SITE_DOMAIN has been created."
-echo "Database user: $DB_USER"
-echo "Database name: $DB_NAME"
-echo "Database password: $DB_PASSWORD (keep this secure!)"
+    echo "Database user: $DB_USER"
+    echo "Database name: $DB_NAME"
+    echo "Database password: $DB_PASSWORD (keep this secure!)"
 fi
 
 echo ""
