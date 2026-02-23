@@ -1,0 +1,154 @@
+#!/usr/bin/env bash
+# Functional test for the --fetchDomain option in gssg.
+# Verifies that gssg can retrieve a Ghost site using the internal Docker container
+# name and port (bypassing Caddy/SSL) while treating content as if from SOURCE_DOMAIN.
+#
+# Usage: ./test-fetch-domain [options] [site_domain]
+#
+# Arguments:
+#   site_domain          Production domain (default: from first positional arg or required)
+#
+# Options:
+#   --ghost-domain DOMAIN  Ghost/staging domain used as gssg --domain (default: derived from
+#                          GHOST_PREFIX env var + site_domain)
+#   --fetch-url URL        Internal URL gssg fetches from (default: http://ghost_<name>:2368)
+#   -h, --help             Show this help
+
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "$0")"; pwd)"
+root_dir="$(cd "$(dirname "$script_dir")"; pwd)"
+
+GLOBAL_ENV_FILE="$root_dir/.env"
+[ -f "$GLOBAL_ENV_FILE" ] && source "$GLOBAL_ENV_FILE"
+
+# ── Argument parsing ───────────────────────────────────────────────────────────
+site_domain=""
+ghost_domain_override=""
+fetch_url_override=""
+
+usage() {
+    sed -n '2,/^[^#]/{ /^#/{ s/^# \{0,1\}//; p }; /^[^#]/q }' "$0"
+    exit "${1:-0}"
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --ghost-domain) ghost_domain_override="$2"; shift 2 ;;
+        --fetch-url)    fetch_url_override="$2";    shift 2 ;;
+        -h|--help)      usage 0 ;;
+        --*)            echo "Unknown option: $1" >&2; usage 1 ;;
+        *)              site_domain="$1"; shift ;;
+    esac
+done
+
+if [[ -z "$site_domain" ]]; then
+    echo "Error: site_domain is required." >&2
+    usage 1
+fi
+
+site_name=$(echo "$site_domain" | sed 's/\..*//')
+container_name="ghost_${site_name}"
+static_user="${STATIC_USER:-ubuntu}"
+
+ghost_domain="${ghost_domain_override:-${GHOST_PREFIX}${GHOST_PREFIX:+.}${site_domain}}"
+fetch_url="${fetch_url_override:-http://${container_name}:2368}"
+output_dir="/tmp/test-fetch-domain-${site_domain}"
+
+pass=0
+fail=0
+
+check() {
+    local label="$1"; shift
+    if "$@" 2>/dev/null; then
+        echo "PASS: $label"
+        pass=$((pass + 1))
+    else
+        echo "FAIL: $label"
+        fail=$((fail + 1))
+    fi
+}
+
+echo "=== test-fetch-domain: $site_domain ==="
+echo "  ghost domain  : $ghost_domain"
+echo "  container     : $container_name"
+echo "  fetch url     : $fetch_url"
+echo ""
+
+# ── Test 1: internal container is reachable from static-generator ──────────────
+echo "--- Test 1: internal container reachability ---"
+# Ghost redirects plain HTTP to HTTPS (301) unless X-Forwarded-Proto: https is sent.
+# wget --spider treats a 301 as success, so we check for 200 with the header.
+check "$fetch_url is reachable from static-generator" \
+    docker exec static-generator wget -q --spider \
+        --header="X-Forwarded-Proto: https" \
+        --header="Host: ${ghost_domain}" \
+        "$fetch_url/"
+
+# ── Test 2: gssg succeeds with --fetchDomain ───────────────────────────────────
+echo ""
+echo "--- Test 2: gssg with --fetchDomain ---"
+docker exec -u "$static_user" static-generator rm -rf "$output_dir" 2>/dev/null || true
+docker exec -u "$static_user" static-generator mkdir -p "$output_dir"
+
+if docker exec -u "$static_user" static-generator \
+       gssg \
+       --domain "https://${ghost_domain}" \
+       --productionDomain "https://${site_domain}" \
+       --fetchDomain "${fetch_url}" \
+       --dest "$output_dir" \
+       --avoid-https \
+       --use-wpull \
+       --silent; then
+    echo "PASS: gssg completed with --fetchDomain"
+    pass=$((pass + 1))
+else
+    echo "FAIL: gssg failed with --fetchDomain"
+    fail=$((fail + 1))
+fi
+
+# ── Test 3: output has files ───────────────────────────────────────────────────
+echo ""
+echo "--- Test 3: output directory contains HTML files ---"
+file_count=$(docker exec static-generator find "$output_dir" -name '*.html' 2>/dev/null | wc -l)
+if [ "$file_count" -gt 0 ]; then
+    echo "PASS: found $file_count HTML file(s)"
+    pass=$((pass + 1))
+else
+    echo "FAIL: no HTML files in output"
+    fail=$((fail + 1))
+fi
+
+# ── Test 4: no ghost domain refs in output ────────────────────────────────────
+echo ""
+echo "--- Test 4: no ghost domain references in output ---"
+# set +o pipefail so grep exit code 1 (no matches) does not abort the pipeline
+ghost_ref_files=$(set +o pipefail; docker exec static-generator grep -rl "https://${ghost_domain}" "$output_dir" 2>/dev/null | wc -l)
+if [ "$ghost_ref_files" -eq 0 ]; then
+    echo "PASS: no ghost domain references found"
+    pass=$((pass + 1))
+else
+    echo "FAIL: $ghost_ref_files file(s) still contain ghost domain references:"
+    docker exec static-generator grep -rl "https://${ghost_domain}" "$output_dir" 2>/dev/null | head -5 | sed 's/^/  /'
+    fail=$((fail + 1))
+fi
+
+# ── Test 5: production domain refs are present ────────────────────────────────
+echo ""
+echo "--- Test 5: production domain references present in output ---"
+prod_ref_files=$(set +o pipefail; docker exec static-generator grep -rl "https://${site_domain}" "$output_dir" 2>/dev/null | wc -l)
+if [ "$prod_ref_files" -gt 0 ]; then
+    echo "PASS: found production domain in $prod_ref_files file(s)"
+    pass=$((pass + 1))
+else
+    echo "FAIL: no production domain references found"
+    fail=$((fail + 1))
+fi
+
+# ── Cleanup ────────────────────────────────────────────────────────────────────
+docker exec -u "$static_user" static-generator rm -rf "$output_dir" 2>/dev/null || true
+
+# ── Summary ───────────────────────────────────────────────────────────────────
+echo ""
+echo "=== Results: $pass passed, $fail failed ==="
+[ "$fail" -eq 0 ]

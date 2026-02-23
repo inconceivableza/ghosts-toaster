@@ -68,6 +68,24 @@ cd webhook && npm install
 cd webhook && npm start
 ```
 
+### Functional Tests
+
+The `functional-tests/` directory contains end-to-end tests that run against a live Docker environment.
+
+```bash
+# Test that gssg can fetch a site via the internal container URL (--fetchDomain feature).
+# Requires: Docker stack running, site already created and accessible.
+./functional-tests/test-fetch-domain <site_domain>
+
+# Override the ghost/staging domain (default: GHOST_PREFIX + site_domain from .env)
+./functional-tests/test-fetch-domain <site_domain> --ghost-domain ghost.example.com
+
+# Override the internal fetch URL (default: http://ghost_<name>:2368)
+./functional-tests/test-fetch-domain <site_domain> --fetch-url http://ghost_mysite:2368
+```
+
+The test exits 0 if all checks pass, non-zero if any fail. It prints PASS/FAIL per check and a summary line.
+
 ## Configuration Files
 
 - **Main configuration**: `.env` (created from `ghosts-toaster.env.example`)

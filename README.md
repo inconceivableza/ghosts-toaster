@@ -168,6 +168,33 @@ To automate backups, set up a cron job:
 0 2 * * * /path/to/your/project/scripts/backup-ghosts.sh
 ```
 
+## Functional Tests
+
+The `functional-tests/` directory contains end-to-end tests that run against the live Docker stack.
+
+### test-fetch-domain
+
+Tests that the static generator can fetch a Ghost site via its internal Docker container URL
+(bypassing Caddy and SSL), and that the generated output contains only production domain
+references — verifying the `--fetchDomain` feature of `gssg`.
+
+```bash
+# Basic usage — derives ghost domain and fetch URL from .env conventions
+./functional-tests/test-fetch-domain example.com
+
+# Override the ghost/staging domain
+./functional-tests/test-fetch-domain example.com --ghost-domain ghost.example.com
+
+# Override the internal fetch URL
+./functional-tests/test-fetch-domain example.com --fetch-url http://ghost_mysite:2368
+
+# Help
+./functional-tests/test-fetch-domain --help
+```
+
+**Prerequisites:** the Docker stack must be running and the site must exist. The test
+prints `PASS`/`FAIL` for each check and exits non-zero if any fail.
+
 ## Troubleshooting
 
 ### Site Not Loading
