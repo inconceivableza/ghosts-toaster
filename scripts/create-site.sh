@@ -68,7 +68,12 @@ echo ""
 
 # Ensure secrets exist and load them
 ./scripts/init-secrets.sh
-WEBHOOK_SECRET=$(grep WEBHOOK_SECRET .secrets | cut -d= -f2)
+# Read the effective WEBHOOK_SECRET: .env takes precedence (used by containers),
+# fall back to .secrets if not defined there.
+WEBHOOK_SECRET=$(grep "^WEBHOOK_SECRET=" .env 2>/dev/null | cut -d= -f2)
+if [ -z "$WEBHOOK_SECRET" ]; then
+    WEBHOOK_SECRET=$(grep "^WEBHOOK_SECRET=" .secrets | cut -d= -f2)
+fi
 
 echo "===== Setting up webhook for automatic static site generation ====="
 echo "After your Ghost site is running, set up the webhook with these steps:"
